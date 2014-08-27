@@ -1,0 +1,49 @@
+{
+  "name": "simple-cache",
+  "description": "Basic, general purpose object hash, for node.js/javascript projects.",
+  "version": "0.1.0",
+  "homepage": "https://github.com/jonschlinkert/simple-cache",
+  "author": {
+    "name": "Jon Schlinkert",
+    "url": "https://github.com/jonschlinkert"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jonschlinkert/simple-cache.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jonschlinkert/simple-cache/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/jonschlinkert/simple-cache/blob/master/LICENSE-MIT"
+    }
+  ],
+  "keywords": [
+    "config",
+    "hash",
+    "object",
+    "store",
+    "data",
+    "cache"
+  ],
+  "main": "index.js",
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "scripts": {
+    "test": "mocha -R spec"
+  },
+  "devDependencies": {
+    "mocha": "*",
+    "should": "^4.0.4",
+    "verb": ">= 0.2.6",
+    "verb-tag-jscomments": "^0.2.0"
+  },
+  "dependencies": {
+    "expander": "^0.3.3",
+    "getobject": "^0.1.0",
+    "lodash": "^2.4.1"
+  }
+}
