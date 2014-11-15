@@ -1,280 +1,86 @@
-/*!
- * simple-cache <https://github.com/jonschlinkert/simple-cache>
- *
- * Copyright (c) 2014 Jon Schlinkert, Brian Woodward, contributors.
- * Licensed under the MIT license.
- */
-
 'use strict';
 
+var util = require('util');
+var typeOf = require('kind-of');
+var Options = require('option-cache');
+var slice = require('array-slice');
+var get = require('get-value');
 var _ = require('lodash');
-var getobject = require('getobject');
-var expander = require('expander');
-var expand = expander.process;
-
 
 /**
- * Initialize a new `Cache`
+ * Expose `Cache`
+ */
+
+module.exports = Cache;
+
+/**
+ * Create a new instance of `Cache`
  *
  * ```js
- * var cache = new Cache();
+ * var app = new Cache();
  * ```
  *
  * @class Cache
- * @param {Object} `obj` Optionally pass an object to initialize with.
+ * @param {Object} `cache` Optionally pass an object to initialize with.
  * @constructor
  * @api public
  */
 
-var Cache = module.exports = function(cache) {
+function Cache(cache) {
+  Options.call(this);
   this.cache = cache || {};
-  this.options = this.cache.options || {};
-};
+}
 
-
-/**
- * Set or get an option.
- *
- * ```js
- * cache.option('a', true)
- * cache.option('a')
- * // => true
- * ```
- *
- * @param {String} `key` The option name.
- * @param {*} `value` The value to set.
- * @return {*|Object} Returns `value` if `key` is supplied, or `Cache` for chaining when an option is set.
- * @api public
- */
-
-Cache.prototype.option = function(key, value) {
-  var args = [].slice.call(arguments);
-
-  if (args.length === 1 && typeof key === 'string') {
-    return this.options[key];
-  }
-
-  if (typeOf(key) === 'object') {
-    _.extend.apply(_, [this.options].concat(args));
-    return this;
-  }
-
-  this.options[key] = value;
-  return this;
-};
-
+util.inherits(Cache, Options);
 
 /**
  * Assign `value` to `key` or return the value of `key`.
  *
  * ```js
- * cache.set(key, value);
+ * app.set(key, value);
+ *
+ * // extend
+ * app.set({a: 'b'});
  * ```
- *
- * If `expand` is defined as true, the value will be set using [expander].
- *
- * **Examples:**
- *
- * ```js
- * // as a key-value pair
- * cache.set('a', {b: 'c'});
- *
- * // or as an object
- * cache.set({a: {b: 'c'}});
- *
- * // chaining is possible
- * cache
- *   .set({a: {b: 'c'}})
- *   .set('d', 'e');
- * ```
- *
- * Expand template strings with expander:
- *
- * ```js
- * cache.set('a', {b: '${c}', c: 'd'}, true);
- * ```
- *
- * Visit the [expander] docs for more info.
- *
- *
- * [expander]: https://github.com/tkellen/expander
- * [getobject]: https://github.com/cowboy/node-getobject
  *
  * @param {String} `key`
  * @param {*} `value`
- * @param {Boolean} `expand` Resolve template strings with [expander]
  * @return {Cache} for chaining
  * @api public
  */
 
-Cache.prototype.set = function(key, value, expand) {
-  if (arguments.length === 1 && typeOf(key) === 'object') {
-    this.extend(key);
-    return this;
-  }
-
-  if (expand) {
-    value = this.process(value, this.cache);
-    this.set(key, value, false);
+Cache.prototype.set = function (key, value) {
+  if (typeOf(key) === 'object') {
+    _.extend(this.cache, key);
   } else {
-    getobject.set(this.cache, key, value);
+    this.cache[key] = value;
   }
-
   return this;
 };
-
 
 /**
  * Return the stored value of `key`. If `key` is not defined,
  * the `cache` is returned.
  *
- * If the value does **not** exist on the cache, you may pass
- * `true` as a second parameter to tell [getobject] to initialize
- * the value as an empty object.
- *
  * ```js
- * cache.set('foo', 'bar');
- * cache.get('foo');
+ * app.set('foo', 'bar');
+ * app.get('foo');
  * // => "bar"
  * ```
  *
- * @param {*} `key`
- * @param {Boolean} `create`
- * @return {*}
+ * @param {String} `key`
  * @api public
  */
 
-Cache.prototype.get = function(key, create) {
+Cache.prototype.get = function (key) {
   if (!key) {
-    return this.cache;
+    return _.cloneDeep(this.cache);
   }
-  return getobject.get(this.cache, key, create);
-};
-
-
-/**
- * Use [expander] to recursively expand template strings into
- * their resolved values.
- *
- * **Example**
- *
- * ```js
- * cache.process({a: '<%= b %>', b: 'c'});
- * //=> {a: 'c', b: 'c'}
- * ```
- *
- * @param {*} `lookup` Any value to process, usually strings with a
- *                     cache template, like `<%= foo %>` or `${foo}`.
- * @param {*} `opts` Options to pass to Lo-Dash `_.template`.
- * @api public
- */
-
-Cache.prototype.process = function(lookup, context) {
-  var args = [].slice.call(arguments);
-
-  if (!args.length) {
-    lookup = context = this.cache;
-  } else {
-    context = context || this.cache;
-    if (typeOf(lookup) === 'object') {
-      context = _.extend({}, context, lookup);
-    }
+  if (/\./.test(key)) {
+    return get(this.cache, key, true);
   }
-
-  var methods = this.methods(context);
-  var o = expand(context, lookup, {
-    imports: methods
-  });
-
-  if (!args.length) {
-    _.extend(this.cache, o);
-  }
-
-  return o;
+  return this.cache[key];
 };
-
-
-/**
- * Check if `key` is enabled (truthy).
- *
- * ```js
- * cache.enabled('foo')
- * // => false
- *
- * cache.enable('foo')
- * cache.enabled('foo')
- * // => true
- * ```
- *
- * @param {String} `key`
- * @return {Boolean}
- * @api public
- */
-
-Cache.prototype.enabled = function(key) {
-  return !!this.get(key);
-};
-
-
-/**
- * Check if `key` is disabled.
- *
- * ```js
- * cache.disabled('foo')
- * // => true
- *
- * cache.enable('foo')
- * cache.disabled('foo')
- * // => false
- * ```
- *
- * @param {String} `key`
- * @return {Boolean}
- * @api public
- */
-
-Cache.prototype.disabled = function(key) {
-  return !this.get(key);
-};
-
-
-/**
- * Enable `key`.
- *
- * **Example**
- *
- * ```js
- * cache.enable('foo');
- * ```
- *
- * @param {String} `key`
- * @return {Cache} for chaining
- * @api public
- */
-
-Cache.prototype.enable = function(key) {
-  return this.set(key, true);
-};
-
-
-/**
- * Disable `key`.
- *
- * **Example**
- *
- * ```js
- * cache.disable('foo');
- * ```
- *
- * @param {String} `key`
- * @return {Cache} for chaining
- * @api public
- */
-
-Cache.prototype.disable = function(key) {
-  return this.set(key, false);
-};
-
 
 /*
  * Return `true` if the element exists. Dot notation
@@ -283,132 +89,46 @@ Cache.prototype.disable = function(key) {
  * **Example**
  *
  * ```js
- * cache.exists('author.name');
+ * app.exists('author.name');
  * //=> true
  * ```
  *
- * @param   {String}  `key`
- * @return  {Boolean}
+ * @param {String} `key`
+ * @return {Boolean}
  * @api public
  */
 
 Cache.prototype.exists = function(key) {
-  return getobject.exists(this.cache, key);
-};
-
-
-/**
- * Add values to an array on the `cache`. This method
- * is chainable.
- *
- * **Example**
- *
- * ```js
- * // config.cache['foo'] => ['a.hbs', 'b.hbs']
- * cache
- *   .union('foo', ['b.hbs', 'c.hbs'], ['d.hbs']);
- *   .union('foo', ['e.hbs', 'f.hbs']);
- *
- * // config.cache['foo'] => ['a.hbs', 'b.hbs', 'c.hbs', 'd.hbs', 'e.hbs', 'f.hbs']
- * ```
- *
- * @chainable
- * @return {Cache} for chaining
- * @api public
- */
-
-Cache.prototype.union = function(key) {
-  var args = [].slice.call(arguments, 1);
-  var arr = this.get(key) || [];
-
-  if (!Array.isArray(arr)) {
-    throw new Error('Cache#union expected an array but got', arr);
+  if (this.hasOwn(key)) {
+    return true;
   }
-  this.set(key, _.flatten([arr].concat(args)));
-  return this;
+  return get(this.cache, key, true) !== undefined;
 };
-
 
 /**
  * Extend the `cache` with the given object.
- * This method is chainable.
  *
  * **Example**
  *
  * ```js
- * cache
- *   .defaults({foo: 'bar'}, {baz: 'quux'});
- *   .defaults({fez: 'bang'});
- * ```
- *
- * Or define the property to defaults:
- *
- * ```js
- * cache
- *   // defaults `cache.a`
- *   .defaults('a', {foo: 'bar'}, {baz: 'quux'})
- *   // defaults `cache.b`
- *   .defaults('b', {fez: 'bang'})
- *   // defaults `cache.a.b.c`
- *   .defaults('a.b.c', {fez: 'bang'});
+ * app
+ *   .extend({a: 'b'}, {c: 'd'});
+ *   .extend('e', {f: 'g'});
  * ```
  *
  * @chainable
- * @return {Cache} for chaining
+ * @return {Object} `Cache` to enable chaining.
  * @api public
  */
 
-Cache.prototype.defaults = function() {
-  var args = [].slice.call(arguments);
+Cache.prototype.extend = function(val) {
+  var args = [].concat.apply([], arguments);
 
-  if (typeof args[0] === 'string') {
-    var o = this.get(args[0]) || {};
-    o = _.defaults.apply(_, [o].concat(_.rest(args)));
-    this.set(args[0], o);
-    return this;
-  }
-
-  _.defaults.apply(_, [this.cache].concat(args));
-  return this;
-};
-
-
-/**
- * Extend the `cache` with the given object.
- * This method is chainable.
- *
- * **Example**
- *
- * ```js
- * cache
- *   .extend({foo: 'bar'}, {baz: 'quux'});
- *   .extend({fez: 'bang'});
- * ```
- *
- * Or define the property to extend:
- *
- * ```js
- * cache
- *   // extend `cache.a`
- *   .extend('a', {foo: 'bar'}, {baz: 'quux'})
- *   // extend `cache.b`
- *   .extend('b', {fez: 'bang'})
- *   // extend `cache.a.b.c`
- *   .extend('a.b.c', {fez: 'bang'});
- * ```
- *
- * @chainable
- * @return {Cache} for chaining
- * @api public
- */
-
-Cache.prototype.extend = function() {
-  var args = [].slice.call(arguments);
-
-  if (typeof args[0] === 'string') {
-    var o = this.get(args[0]) || {};
-    o = _.extend.apply(_, [o].concat(_.rest(args)));
-    this.set(args[0], o);
+  if (typeof val === 'string') {
+    var rest = args.slice(1);
+    var o = this.get(val) || {};
+    o = _.extend.apply(_, [o].concat(rest));
+    this.cache[val] = o;
     return this;
   }
 
@@ -416,59 +136,128 @@ Cache.prototype.extend = function() {
   return this;
 };
 
-
 /**
- * Extend the cache with the given object.
- * This method is chainable.
+ * Deep merge an object onto the `cache`.
  *
  * **Example**
  *
  * ```js
- * cache
- *   .merge({foo: 'bar'}, {baz: 'quux'});
- *   .merge({fez: 'bang'});
+ * app.merge({a: {one: 'one'}}, {a: {two: 'two'}});
+ * console.log(app.get('a'));
+ * //=> {a: {one: 'one', two: 'two'}}
  * ```
  *
  * @chainable
- * @return {Cache} for chaining
+ * @return {Object} `Cache` to enable chaining.
  * @api public
  */
 
-Cache.prototype.merge = function() {
-  var args = [].slice.call(arguments);
-  if (typeof args[0] === 'string') {
-    var o = this.get(args[0]) || {};
-    o = _.merge.apply(_, [o].concat(_.rest(args)));
-    this.set(args[0], o);
+Cache.prototype.merge = function(val) {
+  var args = [].concat.apply([], arguments);
+
+  if (typeof val === 'string') {
+    var rest = args.slice(1);
+    var o = this.get(val) || {};
+    o = _.merge.apply(_, [o].concat(rest));
+    this.cache[val] = o;
     return this;
   }
+
   _.merge.apply(_, [this.cache].concat(args));
   return this;
 };
 
-
 /**
- * Return the keys on `this.cache`.
+ * Return the keys on `obj` or `this.cache`.
  *
  * ```js
- * cache.keys();
+ * app.forOwn();
  * ```
  *
- * @return {Boolean}
+ * @param {Object} `obj` Optionally pass an object.
+ * @return {Array} Array of keys.
  * @api public
  */
 
-Cache.prototype.keys = function() {
-  return Object.keys(this.cache);
+Cache.prototype.forOwn = function (o, fn, thisArg) {
+  if (typeof o === 'function') {
+    thisArg = fn; fn = o; o = this.cache;
+  }
+  return _.forOwn(o, fn, thisArg || this);
 };
 
+/**
+ * Return the keys on `obj` or `this.cache`.
+ *
+ *
+ * ```js
+ * app.keys();
+ * ```
+ *
+ * @param {Object} `obj` Optionally pass an object.
+ * @return {Array} Array of keys.
+ * @api public
+ */
+
+Cache.prototype.keys = function (o) {
+  return Object.keys(o || this.cache);
+};
+
+/**
+ * Return an object of only the properties on `this.cache` or the given `obj`
+ * that have function values.
+ *
+ * ```js
+ * app.functions('foo')
+ * //=> {set: [function], get: [function], functions: [function]}
+ * ```
+ *
+ * @param {Object} `obj`
+ * @return {Array}
+ * @api public
+ */
+
+Cache.prototype.functions = function(o) {
+  o = o || this.cache;
+  var fns = [];
+
+  _.forIn(o, function (val, key) {
+    if (typeof val === 'function') {
+      fns[key] = val;
+    }
+  });
+
+  return fns;
+};
+
+/**
+ * Return true if a deep property is on the given object or
+ * `this.cache`.
+ *
+ * ```js
+ * app.has('a.b.c');
+ * ```
+ *
+ * @param {Object} `obj` Optionally pass an object.
+ * @return {String} `lookup` Prop string to use for the lookup, e.g. `a.b`
+ * @api public
+ */
+
+Cache.prototype.has = function (val, lookup) {
+  if (arguments.length === 1 && typeof val === 'string') {
+    return get(this.cache, val) !== undefined;
+  }
+  return get(val, lookup) !== undefined;
+};
 
 /**
  * Return true if `key` is an own, enumerable property
  * of `this.cache` or the given `obj`.
  *
  * ```js
- * cache.hasOwn([key]);
+ * app.hasOwn(key);
+ * // or
+ * app.hasOwn(obj, key);
  * ```
  *
  * @param  {String} `key`
@@ -477,16 +266,19 @@ Cache.prototype.keys = function() {
  * @api public
  */
 
-Cache.prototype.hasOwn = function(key, o) {
-  return {}.hasOwnProperty.call(o || this.cache, key);
+Cache.prototype.hasOwn = function (o, key) {
+  if (typeof o === 'string') {
+    key = o;
+    o = this.cache;
+  }
+  return {}.hasOwnProperty.call(o, key);
 };
-
 
 /**
  * Clone the given `obj` or `cache`.
  *
  * ```js
- * cache.clone();
+ * app.clone();
  * ```
  *
  * @param  {Object} `obj` Optionally pass an object to clone.
@@ -498,115 +290,29 @@ Cache.prototype.clone = function(o) {
   return _.cloneDeep(o || this.cache);
 };
 
-
 /**
- * Return methods on `this.cache` or the given `obj`.
+ * Delete a property or array of properties from the cache then
+ * re-save the cache.
  *
  * ```js
- * cache.methods('foo')
- * //=> ['set', 'get', 'enable', ...]
+ * app.omit('foo');
+ * // or
+ * app.omit(['foo', 'bar']);
  * ```
  *
- * @param {Object} `obj`
- * @return {Array}
+ * @param {String|Array} `key` The key(s) to omit from the cache
  * @api public
  */
 
-Cache.prototype.methods = function(o) {
-  o = o || this.cache;
-  return _.pick(o, _.methods(o));
-};
+Cache.prototype.omit = function(keys) {
+  keys = [].concat.apply([], arguments);
 
-
-/**
- * Call `fn` on each property in `this.cache`.
- *
- * ```js
- * cache.each(fn, obj);
- * ```
- *
- * @param  {Function} `fn`
- * @param  {Object} `obj` Optionally pass an object to iterate over.
- * @return {Object} Resulting object.
- * @api public
- */
-
-Cache.prototype.each = function(fn, o) {
-  o = o || this.cache;
-  for (var key in o) {
-    if (this.hasOwn(key)) {
-      fn(key, o[key]);
-    }
+  for (var i = 0; i < keys.length; i++) {
+    delete this.cache[keys[i]];
   }
-  return o;
-};
 
-
-/**
- * Traverse each _own property_ of `this.cache` or the given object,
- * recursively calling `fn` on child objects.
- *
- * ```js
- * cache.visit(obj, fn);
- * ```
- *
- * @param {Object|Function} `obj` Optionally pass an object.
- * @param {Function} `fn`
- * @return {Object} Return the resulting object.
- * @api public
- */
-
-Cache.prototype.visit = function(o, fn) {
-  var cloned = {};
-  if (arguments.length === 1) {
-    fn = o;
-    o = this.cache;
-  }
-  o = o || this.cache;
-  for (var key in o) {
-    if (this.hasOwn(key, o)) {
-      var child = o[key];
-      fn.call(this, key, child);
-      if (child != null && typeOf(child) === 'object') {
-        child = this.visit(child, fn);
-      }
-      cloned[key] = child;
-    }
-  }
-  return cloned;
-};
-
-
-/**
- * # Clearing the cache
- *
- * > Methods for clearing the cache, removing or reseting specific
- * values on the cache.
- *
- *
- * Omit properties and their from the `cache`.
- *
- * **Example:**
- *
- * ```js
- * cache
- *   .omit('foo');
- *   .omit('foo', 'bar');
- *   .omit(['foo']);
- *   .omit(['foo', 'bar']);
- * ```
- *
- * @chainable
- * @return {Cache} for chaining
- * @api public
- */
-
-Cache.prototype.omit = function() {
-  var args = [].slice.call(arguments);
-  this.cache = _.omit.apply(_, [this.cache].concat(args));
   return this;
 };
-
 
 /**
  * Remove `key` from the cache, or if no value is
@@ -615,32 +321,17 @@ Cache.prototype.omit = function() {
  * **Example:**
  *
  * ```js
- * cache.clear();
+ * app.clear();
  * ```
  *
- * @chainable
+ * @param {String} `key` The property to remove.
  * @api public
  */
 
-Cache.prototype.clear = function(key) {
+Cache.prototype.clear = function (key) {
   if (key) {
     delete this.cache[key];
   } else {
     this.cache = {};
   }
 };
-
-
-/**
- * Return a string indicating the type of the
- * given value.
- *
- * @param {*} `value`
- * @api private
- */
-
-function typeOf(value) {
-  return Object.prototype.toString.call(value)
-    .toLowerCase()
-    .replace(/\[object ([\S]+)\]/, '$1');
-}

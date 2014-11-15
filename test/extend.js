@@ -18,32 +18,48 @@ describe('app.forOwn()', function () {
   });
 
   describe('.extend()', function() {
-    it('should extend the `cache` with a value.', function() {
+    it('should extend the `cache` object with an object.', function() {
       app.extend({a: 'b'});
       app.get('a').should.equal('b');
     });
 
-    it('should extend the `cache` with an object.', function() {
+    it('should extend the given object with a key/value pair.', function() {
+      app.set('a', {b: 'c'});
+      app.extend('a', {d: 'e'});
+      app.get('a').should.eql({b: 'c', d: 'e'});
+    });
+
+    it('should extend the `cache` object with a list of values.', function() {
+      app.extend({a: 'b'}, {c: 'd'});
+      app.get().should.eql({a: 'b', c: 'd'});
+    });
+
+    it('should extend the `cache` object with an array of values.', function() {
+      app.extend([{a: 'b'}, {c: 'd'}]);
+      app.get().should.eql({a: 'b', c: 'd'});
+    });
+
+    it('should extend the `cache` object a mixture of list values and array values.', function() {
+      app.extend({a: 'b'}, [{c: 'd'}, {e: 'f'}]);
+      app.get().should.eql({a: 'b', c: 'd', e: 'f'});
+    });
+
+    it('should be chainable.', function() {
       app
         .extend({x: 'x', y: 'y', z: 'z'})
         .extend({a: 'a', b: 'b', c: 'c'});
 
-      app.get().should.have.property('a');
-      app.get().should.have.property('b');
-      app.get().should.have.property('c');
-      app.get().should.have.property('x');
-      app.get().should.have.property('y');
-      app.get().should.have.property('z');
+      app.get().should.have.properties('a', 'b', 'c', 'x', 'y', 'z');
     });
   });
 
   describe('when the same property is set more than once.', function() {
-    it('should extend the `cache` with the last value defined.', function() {
+    it('should extend the `cache` object with the last value defined.', function() {
       app.extend({a: 'B'}, {a: 'C'});
       app.get('a').should.equal('C');
     });
 
-    it('should extend the `cache` with the last value defined.', function() {
+    it('should extend the `cache` object with the last value defined.', function() {
       app
         .extend({a: 'B'})
         .extend({a: 'C'});

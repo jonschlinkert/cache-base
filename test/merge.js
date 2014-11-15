@@ -17,28 +17,38 @@ describe('app.merge()', function () {
   });
 
   describe('.merge()', function() {
-    it('should merge a value onto the `cache`.', function() {
+    it('should merge the `cache` object with an object.', function() {
       app.merge({a: 'b'});
       app.get('a').should.equal('b');
     });
 
-    it('should deep merge a value onto the `cache`.', function() {
-      app.merge({a: {b: 'b'}});
-      app.merge({a: {c: 'c'}});
-      app.get('a').should.eql({b: 'b', c: 'c'});
+    it('should merge the given object with a key/value pair.', function() {
+      app.set('a', {b: 'c'});
+      app.merge('a', {d: 'e'});
+      app.get('a').should.eql({b: 'c', d: 'e'});
     });
 
-    it('should merge the `cache` with an object.', function() {
+    it('should merge the `cache` object with a list of values.', function() {
+      app.merge({a: 'b'}, {c: 'd'});
+      app.get().should.eql({a: 'b', c: 'd'});
+    });
+
+    it('should merge the `cache` object with an array of values.', function() {
+      app.merge([{a: 'b'}, {c: 'd'}]);
+      app.get().should.eql({a: 'b', c: 'd'});
+    });
+
+    it('should merge the `cache` object a mixture of list values and array values.', function() {
+      app.merge({a: 'b'}, [{c: 'd'}, {e: 'f'}]);
+      app.get().should.eql({a: 'b', c: 'd', e: 'f'});
+    });
+
+    it('should be chainable.', function() {
       app
         .merge({x: 'x', y: 'y', z: 'z'})
         .merge({a: 'a', b: 'b', c: 'c'});
 
-      app.get().should.have.property('a');
-      app.get().should.have.property('b');
-      app.get().should.have.property('c');
-      app.get().should.have.property('x');
-      app.get().should.have.property('y');
-      app.get().should.have.property('z');
+      app.get().should.have.properties('a', 'b', 'c', 'x', 'y', 'z');
     });
   });
 
