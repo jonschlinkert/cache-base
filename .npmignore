@@ -8,3 +8,11 @@ test/actual
 tmp
 TODO.md
 vendor
+
+# npmignore
+.travis.yml
+.verb.md
+actual
+fixtures
+test
+test.js
