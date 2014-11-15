@@ -1,23 +1,23 @@
 {
-  "name": "simple-cache",
-  "description": "Basic, general purpose object hash, for node.js/javascript projects.",
-  "version": "0.1.0",
-  "homepage": "https://github.com/jonschlinkert/simple-cache",
+  "name": "cache-base",
+  "description": "Basic, general purpose object cache for node.js/javascript projects.",
+  "version": "0.2.0",
+  "homepage": "https://github.com/jonschlinkert/cache-base",
   "author": {
     "name": "Jon Schlinkert",
     "url": "https://github.com/jonschlinkert"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/jonschlinkert/simple-cache.git"
+    "url": "git://github.com/jonschlinkert/cache-base.git"
   },
   "bugs": {
-    "url": "https://github.com/jonschlinkert/simple-cache/issues"
+    "url": "https://github.com/jonschlinkert/cache-base/issues"
   },
   "licenses": [
     {
       "type": "MIT",
-      "url": "https://github.com/jonschlinkert/simple-cache/blob/master/LICENSE-MIT"
+      "url": "https://github.com/jonschlinkert/cache-base/blob/master/LICENSE-MIT"
     }
   ],
   "keywords": [
@@ -37,13 +37,13 @@
   },
   "devDependencies": {
     "mocha": "*",
-    "should": "^4.0.4",
-    "verb": ">= 0.2.6",
-    "verb-tag-jscomments": "^0.2.0"
+    "should": "^4.0.4"
   },
   "dependencies": {
-    "expander": "^0.3.3",
-    "getobject": "^0.1.0",
-    "lodash": "^2.4.1"
+    "array-slice": "^0.2.2",
+    "get-value": "^0.2.1",
+    "kind-of": "^0.1.0",
+    "lodash": "^2.4.1",
+    "option-cache": "^0.1.4"
   }
 }
