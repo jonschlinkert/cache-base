@@ -1,271 +1,176 @@
-# simple-cache [![NPM version](https://badge.fury.io/js/simple-cache.png)](http://badge.fury.io/js/simple-cache)
+# cache-base [![NPM version](https://badge.fury.io/js/cache-base.svg)](http://badge.fury.io/js/cache-base)
 
-> Basic, general purpose object hash, for node.js/javascript projects.
+> Basic, general purpose object cache for node.js/javascript projects.
 
 ## Install
-#### Install with [npm](npmjs.org):
+### Install with [npm](npmjs.org)
 
 ```bash
-npm i simple-cache --save-dev
+npm i cache-base --save
 ```
 
 ## Usage
 
-```js
-var Config = require('simple-cache');
-var config = new Config();
-```
-
-## API
-### [Cache](index.js#L29)
-
-Initialize a new `Cache`
-
-* `obj` **{Object}**: Optionally pass an object to initialize with.    
+Create an instance:
 
 ```js
+var Cache = require('cache-base');
 var cache = new Cache();
 ```
 
-### [.option](index.js#L50)
-
-Set or get an option.
-
-* `key` **{String}**: The option name.    
-* `value` **{*}**: The value to set.    
-* `returns` **{*|Object}**: Returns `value` if `key` is supplied, or `Cache` for chaining when an option is set.  
+**Inherit**
 
 ```js
-cache.option('a', true)
-cache.option('a')
-// => true
+var util = require('util');
+var Cache = require('cache-base');
+
+function App() {
+  Cache.call(this);
+}
+
+util.inherits(App, Cache);
 ```
 
-### [.set](index.js#L110)
+**Example usage**
+
+```js
+var app = new App();
+
+app.set('a', 'b');
+app.get('a');
+//=> 'b'
+
+app.enable('abc');
+console.log(app.enabled('abc'));
+//=> 'true'
+```
+
+## API
+## [Cache](index.js#L29)
+
+Create a new instance of `Cache`
+
+* `cache` **{Object}**: Optionally pass an object to initialize with.    
+
+```js
+var app = new Cache();
+```
+
+## [.set](index.js#L52)
 
 Assign `value` to `key` or return the value of `key`.
 
 * `key` **{String}**    
 * `value` **{*}**    
-* `expand` **{Boolean}**: Resolve template strings with [expander]    
 * `returns` **{Cache}**: for chaining  
 
 ```js
-cache.set(key, value);
+app.set(key, value);
+
+// extend
+app.set({a: 'b'});
 ```
 
-If `expand` is defined as true, the value will be set using [expander].
-
-**Examples:**
-
-```js
-// as a key-value pair
-cache.set('a', {b: 'c'});
-
-// or as an object
-cache.set({a: {b: 'c'}});
-
-// chaining is possible
-cache
-  .set({a: {b: 'c'}})
-  .set('d', 'e');
-```
-
-Expand template strings with expander:
-
-```js
-cache.set('a', {b: '${c}', c: 'd'}, true);
-```
-
-Visit the [expander] docs for more info.
-
-[expander]: https://github.com/tkellen/expander
-[getobject]: https://github.com/cowboy/node-getobject
-
-### [.get](index.js#L147)
+## [.get](index.js#L75)
 
 Return the stored value of `key`. If `key` is not defined, the `cache` is returned.
 
-* `key` **{*}**    
-* `create` **{Boolean}**    
-* `returns`: {*}  
-
-If the value does **not** exist on the cache, you may pass
-`true` as a second parameter to tell [getobject] to initialize
-the value as an empty object.
+* `key` **{String}**    
 
 ```js
-cache.set('foo', 'bar');
-cache.get('foo');
+app.set('foo', 'bar');
+app.get('foo');
 // => "bar"
 ```
 
-### [.process](index.js#L172)
+## [.exists](index.js#L101)
 
-Use [expander] to recursively expand template strings into their resolved values.
-
-* `lookup` **{*}**: Any value to process, usually strings with a cache template, like `<%= foo %>` or `${foo}`.    
-* `opts` **{*}**: Options to pass to Lo-Dash `_.template`.    
-
-**Example**
-
-```js
-cache.process({a: '<%= b %>', b: 'c'});
-//=> {a: 'c', b: 'c'}
-```
-
-### [.enabled](index.js#L214)
-
-Check if `key` is enabled (truthy).
+Return `true` if the element exists. Dot notation may be used for nested properties.
 
 * `key` **{String}**    
 * `returns`: {Boolean}  
 
-```js
-cache.enabled('foo')
-// => false
-
-cache.enable('foo')
-cache.enabled('foo')
-// => true
-```
-
-### [.disabled](index.js#L236)
-
-Check if `key` is disabled.
-
-* `key` **{String}**    
-* `returns`: {Boolean}  
+**Example**
 
 ```js
-cache.disabled('foo')
-// => true
-
-cache.enable('foo')
-cache.disabled('foo')
-// => false
+app.exists('author.name');
+//=> true
 ```
 
-### [.enable](index.js#L255)
+## [.extend](index.js#L124)
 
-Enable `key`.
+Extend the `cache` with the given object.
 
-* `key` **{String}**    
-* `returns` **{Cache}**: for chaining  
+* `returns` **{Object}** `Cache`: to enable chaining.  
 
 **Example**
 
 ```js
-cache.enable('foo');
+app
+  .extend({a: 'b'}, {c: 'd'});
+  .extend('e', {f: 'g'});
 ```
 
-### [.disable](index.js#L274)
+## [.merge](index.js#L155)
 
-Disable `key`.
+Deep merge an object onto the `cache`.
 
-* `key` **{String}**    
-* `returns` **{Cache}**: for chaining  
+* `returns` **{Object}** `Cache`: to enable chaining.  
 
 **Example**
 
 ```js
-cache.disable('foo');
+app.merge({a: {one: 'one'}}, {a: {two: 'two'}});
+console.log(app.get('a'));
+//=> {a: {one: 'one', two: 'two'}}
 ```
 
-### [.union](index.js#L320)
+## [.forOwn](index.js#L182)
 
-Add values to an array on the `cache`. This method is chainable.
+Return the keys on `obj` or `this.cache`.
 
-* `returns` **{Cache}**: for chaining  
-
-**Example**
+* `obj` **{Object}**: Optionally pass an object.    
+* `returns` **{Array}**: Array of keys.  
 
 ```js
-// config.cache['foo'] => ['a.hbs', 'b.hbs']
-cache
-  .union('foo', ['b.hbs', 'c.hbs'], ['d.hbs']);
-  .union('foo', ['e.hbs', 'f.hbs']);
-
-// config.cache['foo'] => ['a.hbs', 'b.hbs', 'c.hbs', 'd.hbs', 'e.hbs', 'f.hbs']
+app.forOwn();
 ```
 
-### [.defaults](index.js#L362)
+## [.keys](index.js#L202)
 
-Extend the `cache` with the given object. This method is chainable.
+Return the keys on `obj` or `this.cache`.
 
-* `returns` **{Cache}**: for chaining  
-
-**Example**
+* `obj` **{Object}**: Optionally pass an object.    
+* `returns` **{Array}**: Array of keys.  
 
 ```js
-cache
-  .defaults({foo: 'bar'}, {baz: 'quux'});
-  .defaults({fez: 'bang'});
+app.keys();
 ```
 
-Or define the property to defaults:
+## [.functions](index.js#L220)
+
+Return an object of only the properties on `this.cache` or the given `obj` that have function values.
+
+* `obj` **{Object}**    
+* `returns`: {Array}  
 
 ```js
-cache
-  // defaults `cache.a`
-  .defaults('a', {foo: 'bar'}, {baz: 'quux'})
-  // defaults `cache.b`
-  .defaults('b', {fez: 'bang'})
-  // defaults `cache.a.b.c`
-  .defaults('a.b.c', {fez: 'bang'});
+app.functions('foo')
+//=> {set: [function], get: [function], functions: [function]}
 ```
 
-### [.extend](index.js#L406)
+## [.has](index.js#L246)
 
-Extend the `cache` with the given object. This method is chainable.
+Return true if a deep property is on the given object or `this.cache`.
 
-* `returns` **{Cache}**: for chaining  
-
-**Example**
+* `obj` **{Object}**: Optionally pass an object.    
+* `returns` **{String}** `lookup`: Prop string to use for the lookup, e.g. `a.b`  
 
 ```js
-cache
-  .extend({foo: 'bar'}, {baz: 'quux'});
-  .extend({fez: 'bang'});
+app.has('a.b.c');
 ```
 
-Or define the property to extend:
-
-```js
-cache
-  // extend `cache.a`
-  .extend('a', {foo: 'bar'}, {baz: 'quux'})
-  // extend `cache.b`
-  .extend('b', {fez: 'bang'})
-  // extend `cache.a.b.c`
-  .extend('a.b.c', {fez: 'bang'});
-```
-
-### [.merge](index.js#L438)
-
-Extend the cache with the given object. This method is chainable.
-
-* `returns` **{Cache}**: for chaining  
-
-**Example**
-
-```js
-cache
-  .merge({foo: 'bar'}, {baz: 'quux'});
-  .merge({fez: 'bang'});
-```
-
-### [.keys](index.js#L462)
-
-Return the keys on `this.cache`.
-
-* `returns`: {Boolean}  
-
-```js
-cache.keys();
-```
-
-### [.hasOwn](index.js#L481)
+## [.hasOwn](index.js#L269)
 
 Return true if `key` is an own, enumerable property of `this.cache` or the given `obj`.
 
@@ -274,10 +179,12 @@ Return true if `key` is an own, enumerable property of `this.cache` or the given
 * `returns`: {Boolean}  
 
 ```js
-cache.hasOwn([key]);
+app.hasOwn(key);
+// or
+app.hasOwn(obj, key);
 ```
 
-### [.clone](index.js#L498)
+## [.clone](index.js#L289)
 
 Clone the given `obj` or `cache`.
 
@@ -285,71 +192,31 @@ Clone the given `obj` or `cache`.
 * `returns`: {Boolean}  
 
 ```js
-cache.clone();
+app.clone();
 ```
 
-### [.methods](index.js#L516)
+## [.omit](index.js#L307)
 
-Return methods on `this.cache` or the given `obj`.
+Delete a property or array of properties from the cache then re-save the cache.
 
-* `obj` **{Object}**    
-* `returns`: {Array}  
+* `key` **{String|Array}**: The key(s) to omit from the cache    
 
 ```js
-cache.methods('foo')
-//=> ['set', 'get', 'enable', ...]
+app.omit('foo');
+// or
+app.omit(['foo', 'bar']);
 ```
 
-### [.each](index.js#L535)
-
-Call `fn` on each property in `this.cache`.
-
-* `fn` **{Function}**    
-* `obj` **{Object}**: Optionally pass an object to iterate over.    
-* `returns` **{Object}**: Resulting object.  
-
-```js
-cache.each(fn, obj);
-```
-
-### [.visit](index.js#L560)
-
-Traverse each _own property_ of `this.cache` or the given object, recursively calling `fn` on child objects.
-
-* `obj` **{Object|Function}**: Optionally pass an object.    
-* `fn` **{Function}**    
-* `returns` **{Object}**: Return the resulting object.  
-
-```js
-cache.visit(obj, fn);
-```
-
-### [.Clearing the cache](index.js#L605)
-
-> Methods for clearing the cache, removing or reseting specific values on the cache.
-
-* `returns` **{Cache}**: for chaining  
-
-Omit properties and their from the `cache`.
-
-**Example:**
-
-```js
-cache
-  .omit('foo');
-  .omit('foo', 'bar');
-  .omit(['foo']);
-  .omit(['foo', 'bar']);
-```
-
-### [.clear](index.js#L626)
+## [.clear](index.js#L331)
 
 Remove `key` from the cache, or if no value is specified the entire cache is reset.
 
+* `key` **{String}**: The property to remove.    
+
 **Example:**
 
 ```js
-cache.clear();
+app.clear();
 ```
 
 ## Author
@@ -360,9 +227,9 @@ cache.clear();
 + [twitter/jonschlinkert](http://twitter.com/jonschlinkert) 
 
 ## License
-Copyright (c) 2014 Jon Schlinkert, contributors.  
+Copyright (c) 2014 Jon Schlinkert  
 Released under the MIT license
 
 ***
 
-_This file was generated by [verb-cli](https://github.com/assemble/verb-cli) on August 27, 2014._
+_This file was generated by [verb](https://github.com/assemble/verb) on November 15, 2014._
