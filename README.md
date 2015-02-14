@@ -124,21 +124,24 @@ console.log(app.get('a'));
 //=> {a: {one: 'one', two: 'two'}}
 ```
 
-### [.pick](index.js#L186)
+### [.pick](index.js#L189)
 
-Delete a property or array of properties from the cache then re-save the cache.
+Extend the cache with only the specified values from the given object.
 
-* `key` **{String|Array}**: The key(s) to pick from the cache    
+* `key` **{String|Array}**: The key(s) to pick from the object and extend onto `app.cache`    
 
 ```js
-app.pick('foo');
-// or
-app.pick(['foo', 'bar']);
+var obj = {a: 'a', b: 'b', c: 'c'};
+app.pick(obj, 'a');
+//=> {a: 'a'}
+
+app.pick(obj, ['a', 'b']);
+//=> {a: 'a', b: 'b'}
 ```
 
-### [.omit](index.js#L204)
+### [.omit](index.js#L206)
 
-Delete a property or array of properties from the cache then re-save the cache.
+Omit a property or array of properties from the cache
 
 * `key` **{String|Array}**: The key(s) to omit from the cache    
 
@@ -148,7 +151,7 @@ app.omit('foo');
 app.omit(['foo', 'bar']);
 ```
 
-### [.forOwn](index.js#L220)
+### [.forOwn](index.js#L222)
 
 Return the keys on `obj` or `this.cache`.
 
@@ -159,7 +162,7 @@ Return the keys on `obj` or `this.cache`.
 app.forOwn();
 ```
 
-### [.keys](index.js#L240)
+### [.keys](index.js#L242)
 
 Return the keys on `obj` or `this.cache`.
 
@@ -170,7 +173,7 @@ Return the keys on `obj` or `this.cache`.
 app.keys();
 ```
 
-### [.functions](index.js#L258)
+### [.functions](index.js#L260)
 
 Return an object of only the properties on `this.cache` or the given `obj` that have function values.
 
@@ -182,7 +185,7 @@ app.functions('foo')
 //=> {set: [function], get: [function], functions: [function]}
 ```
 
-### [.has](index.js#L284)
+### [.has](index.js#L286)
 
 Return true if a deep property is on the given object or `this.cache`.
 
@@ -193,7 +196,7 @@ Return true if a deep property is on the given object or `this.cache`.
 app.has('a.b.c');
 ```
 
-### [.hasOwn](index.js#L307)
+### [.hasOwn](index.js#L309)
 
 Return true if `key` is an own, enumerable property of `this.cache` or the given `obj`.
 
@@ -207,7 +210,7 @@ app.hasOwn(key);
 app.hasOwn(obj, key);
 ```
 
-### [.clone](index.js#L326)
+### [.clone](index.js#L328)
 
 Clone the given `obj` or `cache`.
 
@@ -218,7 +221,7 @@ Clone the given `obj` or `cache`.
 app.clone();
 ```
 
-### [.clear](index.js#L344)
+### [.clear](index.js#L346)
 
 Remove `key` from the cache, or if no value is specified the entire cache is reset.
 

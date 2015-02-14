@@ -170,16 +170,19 @@ Cache.prototype.merge = function(val) {
 };
 
 /**
- * Delete a property or array of properties from the cache then
- * re-save the cache.
+ * Extend the cache with only the specified values from the given
+ * object.
  *
  * ```js
- * app.pick('foo');
- * // or
- * app.pick(['foo', 'bar']);
+ * var obj = {a: 'a', b: 'b', c: 'c'};
+ * app.pick(obj, 'a');
+ * //=> {a: 'a'}
+ *
+ * app.pick(obj, ['a', 'b']);
+ * //=> {a: 'a', b: 'b'}
  * ```
  *
- * @param {String|Array} `key` The key(s) to pick from the cache
+ * @param {String|Array} `key` The key(s) to pick from the object and extend onto `app.cache`
  * @api public
  */
 
@@ -188,8 +191,7 @@ Cache.prototype.pick = function(o, keys) {
 };
 
 /**
- * Delete a property or array of properties from the cache then
- * re-save the cache.
+ * Omit a property or array of properties from the cache
  *
  * ```js
  * app.omit('foo');
