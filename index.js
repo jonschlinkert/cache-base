@@ -4,6 +4,8 @@ var util = require('util');
 var chalk = require('chalk');
 var typeOf = require('kind-of');
 var Options = require('option-cache');
+var omit = require('object.omit');
+var pick = require('object.pick');
 var get = require('get-value');
 var _ = require('lodash');
 
@@ -168,6 +170,42 @@ Cache.prototype.merge = function(val) {
 };
 
 /**
+ * Delete a property or array of properties from the cache then
+ * re-save the cache.
+ *
+ * ```js
+ * app.pick('foo');
+ * // or
+ * app.pick(['foo', 'bar']);
+ * ```
+ *
+ * @param {String|Array} `key` The key(s) to pick from the cache
+ * @api public
+ */
+
+Cache.prototype.pick = function(o, keys) {
+  this.extend(pick(o, keys));
+};
+
+/**
+ * Delete a property or array of properties from the cache then
+ * re-save the cache.
+ *
+ * ```js
+ * app.omit('foo');
+ * // or
+ * app.omit(['foo', 'bar']);
+ * ```
+ *
+ * @param {String|Array} `key` The key(s) to omit from the cache
+ * @api public
+ */
+
+Cache.prototype.omit = function(keys) {
+  this.cache = omit(this.cache, keys);
+};
+
+/**
  * Return the keys on `obj` or `this.cache`.
  *
  * ```js
@@ -290,30 +328,6 @@ Cache.prototype.clone = function(o) {
 };
 
 /**
- * Delete a property or array of properties from the cache then
- * re-save the cache.
- *
- * ```js
- * app.omit('foo');
- * // or
- * app.omit(['foo', 'bar']);
- * ```
- *
- * @param {String|Array} `key` The key(s) to omit from the cache
- * @api public
- */
-
-Cache.prototype.omit = function(keys) {
-  keys = [].concat.apply([], arguments);
-
-  for (var i = 0; i < keys.length; i++) {
-    delete this.cache[keys[i]];
-  }
-
-  return this;
-};
-
-/**
  * Remove `key` from the cache, or if no value is
  * specified the entire cache is reset.
  *
@@ -327,19 +341,10 @@ Cache.prototype.omit = function(keys) {
  * @api public
  */
 
-Cache.prototype.remove = function (key) {
+Cache.prototype.clear = function (key) {
   if (key) {
     delete this.cache[key];
   } else {
     this.cache = {};
   }
-};
-
-/**
- * Deprecate
- */
-
-Cache.prototype.clear = function (key) {
-  console.warn(chalk.yellow('[cache-base]: `.clear()` is deprecated. Use `.remove()` instead.'));
-  this.remove(key);
 };
