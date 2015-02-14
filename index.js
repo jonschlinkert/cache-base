@@ -1,9 +1,9 @@
 'use strict';
 
 var util = require('util');
+var chalk = require('chalk');
 var typeOf = require('kind-of');
 var Options = require('option-cache');
-var slice = require('array-slice');
 var get = require('get-value');
 var _ = require('lodash');
 
@@ -76,7 +76,7 @@ Cache.prototype.get = function (key) {
   if (!key) {
     return _.cloneDeep(this.cache);
   }
-  if (/\./.test(key)) {
+  if (key.indexOf('.') !== -1) {
     return get(this.cache, key, true);
   }
   return this.cache[key];
@@ -268,8 +268,7 @@ Cache.prototype.has = function (val, lookup) {
 
 Cache.prototype.hasOwn = function (o, key) {
   if (typeof o === 'string') {
-    key = o;
-    o = this.cache;
+    key = o; o = this.cache;
   }
   return {}.hasOwnProperty.call(o, key);
 };
@@ -328,10 +327,19 @@ Cache.prototype.omit = function(keys) {
  * @api public
  */
 
-Cache.prototype.clear = function (key) {
+Cache.prototype.remove = function (key) {
   if (key) {
     delete this.cache[key];
   } else {
     this.cache = {};
   }
+};
+
+/**
+ * Deprecate
+ */
+
+Cache.prototype.clear = function (key) {
+  console.warn(chalk.yellow('[cache-base]: `.clear()` is deprecated. Use `.remove()` instead.'));
+  this.remove(key);
 };
