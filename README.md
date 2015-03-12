@@ -45,7 +45,7 @@ console.log(app.enabled('abc'));
 ```
 
 ## API
-### [Cache](./index.js#L31)
+### [Cache](./index.js#L28)
 
 Create a new instance of `Cache`
 
@@ -55,7 +55,7 @@ Create a new instance of `Cache`
 var app = new Cache();
 ```
 
-### [.set](./index.js#L54)
+### [.set](./index.js#L51)
 
 Assign `value` to `key` or return the value of `key`.
 
@@ -70,7 +70,7 @@ app.set(key, value);
 app.set({a: 'b'});
 ```
 
-### [.get](./index.js#L77)
+### [.get](./index.js#L74)
 
 Return the stored value of `key`. If `key` is not defined, the `cache` is returned.
 
@@ -82,7 +82,7 @@ app.get('foo');
 // => "bar"
 ```
 
-### [.exists](./index.js#L100)
+### [.exists](./index.js#L97)
 
 Return `true` if the element exists. Dot notation may be used for nested properties.
 
@@ -94,7 +94,7 @@ app.exists('author.name');
 //=> true
 ```
 
-### [.extend](./index.js#L122)
+### [.extend](./index.js#L119)
 
 Extend the `cache` with the given object.
 
@@ -106,7 +106,7 @@ app
   .extend('e', {f: 'g'});
 ```
 
-### [.merge](./index.js#L151)
+### [.merge](./index.js#L148)
 
 Deep merge an object onto the `cache`.
 
@@ -118,7 +118,7 @@ console.log(app.get('a'));
 //=> {a: {one: 'one', two: 'two'}}
 ```
 
-### [.pick](./index.js#L183)
+### [.pick](./index.js#L180)
 
 Extend the cache with only the specified values from the given object.
 
@@ -133,7 +133,7 @@ app.pick(obj, ['a', 'b']);
 //=> {a: 'a', b: 'b'}
 ```
 
-### [.omit](./index.js#L200)
+### [.omit](./index.js#L197)
 
 Omit a property or array of properties from the cache
 
@@ -145,7 +145,7 @@ app.omit('foo');
 app.omit(['foo', 'bar']);
 ```
 
-### [.forOwn](./index.js#L216)
+### [.forOwn](./index.js#L213)
 
 Return the keys on `obj` or `this.cache`.
 
@@ -156,7 +156,7 @@ Return the keys on `obj` or `this.cache`.
 app.forOwn();
 ```
 
-### [.keys](./index.js#L236)
+### [.keys](./index.js#L233)
 
 Return the keys on `obj` or `this.cache`.
 
@@ -167,7 +167,7 @@ Return the keys on `obj` or `this.cache`.
 app.keys();
 ```
 
-### [.functions](./index.js#L254)
+### [.functions](./index.js#L251)
 
 Return an object of only the properties on `this.cache` or the given `obj` that have function values.
 
@@ -179,7 +179,7 @@ app.functions('foo')
 //=> {set: [function], get: [function], functions: [function]}
 ```
 
-### [.has](./index.js#L280)
+### [.has](./index.js#L277)
 
 Return true if a deep property is on the given object or `this.cache`.
 
@@ -190,7 +190,7 @@ Return true if a deep property is on the given object or `this.cache`.
 app.has('a.b.c');
 ```
 
-### [.hasOwn](./index.js#L303)
+### [.hasOwn](./index.js#L300)
 
 Return true if `key` is an own, enumerable property of `this.cache` or the given `obj`.
 
@@ -204,7 +204,7 @@ app.hasOwn(key);
 app.hasOwn(obj, key);
 ```
 
-### [.clone](./index.js#L322)
+### [.clone](./index.js#L319)
 
 Clone the given `obj` or `cache`.
 
@@ -215,7 +215,7 @@ Clone the given `obj` or `cache`.
 app.clone();
 ```
 
-### [.clear](./index.js#L340)
+### [.clear](./index.js#L337)
 
 Remove `key` from the cache, or if no value is specified the entire cache is reset.
 
