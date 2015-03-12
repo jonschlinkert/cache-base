@@ -1,7 +1,7 @@
 {
   "name": "cache-base",
   "description": "Generic object cache for node.js/javascript projects.",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "homepage": "https://github.com/jonschlinkert/cache-base",
   "author": {
     "name": "Jon Schlinkert",
@@ -14,12 +14,10 @@
   "bugs": {
     "url": "https://github.com/jonschlinkert/cache-base/issues"
   },
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "https://github.com/jonschlinkert/cache-base/blob/master/LICENSE"
-    }
-  ],
+  "license": {
+    "type": "MIT",
+    "url": "https://github.com/jonschlinkert/cache-base/blob/master/LICENSE"
+  },
   "files": [
     "index.js"
   ],
@@ -28,21 +26,17 @@
     "node": ">=0.10.0"
   },
   "scripts": {
-    "test": "mocha",
-    "lint": "deps -e test"
+    "test": "mocha"
+  },
+  "dependencies": {
+    "get-value": "^1.0.4",
+    "kind-of": "^1.1.0",
+    "lodash": "^3.5.0",
+    "option-cache": "^1.2.2"
   },
   "devDependencies": {
     "mocha": "*",
     "should": "^4.0.4"
-  },
-  "dependencies": {
-    "chalk": "^0.5.1",
-    "get-value": "^1.0.2",
-    "kind-of": "^1.1.0",
-    "lodash": "^3.2.0",
-    "object.omit": "^0.2.1",
-    "object.pick": "^1.1.1",
-    "option-cache": "^1.1.0"
   },
   "keywords": [
     "config",

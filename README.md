@@ -1,4 +1,4 @@
-# cache-base [![NPM version](https://badge.fury.io/js/cache-base.svg)](http://badge.fury.io/js/cache-base)
+# cache-base [![NPM version](https://badge.fury.io/js/cache-base.svg)](http://badge.fury.io/js/cache-base)  [![Build Status](https://travis-ci.org/jonschlinkert/cache-base.svg)](https://travis-ci.org/jonschlinkert/cache-base) 
 
 > Generic object cache for node.js/javascript projects.
 
@@ -45,7 +45,7 @@ console.log(app.enabled('abc'));
 ```
 
 ## API
-### [Cache](index.js#L31)
+### [Cache](./index.js#L31)
 
 Create a new instance of `Cache`
 
@@ -55,7 +55,7 @@ Create a new instance of `Cache`
 var app = new Cache();
 ```
 
-### [.set](index.js#L54)
+### [.set](./index.js#L54)
 
 Assign `value` to `key` or return the value of `key`.
 
@@ -70,7 +70,7 @@ app.set(key, value);
 app.set({a: 'b'});
 ```
 
-### [.get](index.js#L77)
+### [.get](./index.js#L77)
 
 Return the stored value of `key`. If `key` is not defined, the `cache` is returned.
 
@@ -82,27 +82,23 @@ app.get('foo');
 // => "bar"
 ```
 
-### [.exists](index.js#L103)
+### [.exists](./index.js#L100)
 
 Return `true` if the element exists. Dot notation may be used for nested properties.
 
 * `key` **{String}**    
 * `returns`: {Boolean}  
 
-**Example**
-
 ```js
 app.exists('author.name');
 //=> true
 ```
 
-### [.extend](index.js#L126)
+### [.extend](./index.js#L122)
 
 Extend the `cache` with the given object.
 
 * `returns` **{Object}** `Cache`: to enable chaining.  
-
-**Example**
 
 ```js
 app
@@ -110,13 +106,11 @@ app
   .extend('e', {f: 'g'});
 ```
 
-### [.merge](index.js#L157)
+### [.merge](./index.js#L151)
 
 Deep merge an object onto the `cache`.
 
 * `returns` **{Object}** `Cache`: to enable chaining.  
-
-**Example**
 
 ```js
 app.merge({a: {one: 'one'}}, {a: {two: 'two'}});
@@ -124,7 +118,7 @@ console.log(app.get('a'));
 //=> {a: {one: 'one', two: 'two'}}
 ```
 
-### [.pick](index.js#L189)
+### [.pick](./index.js#L183)
 
 Extend the cache with only the specified values from the given object.
 
@@ -139,7 +133,7 @@ app.pick(obj, ['a', 'b']);
 //=> {a: 'a', b: 'b'}
 ```
 
-### [.omit](index.js#L206)
+### [.omit](./index.js#L200)
 
 Omit a property or array of properties from the cache
 
@@ -151,7 +145,7 @@ app.omit('foo');
 app.omit(['foo', 'bar']);
 ```
 
-### [.forOwn](index.js#L222)
+### [.forOwn](./index.js#L216)
 
 Return the keys on `obj` or `this.cache`.
 
@@ -162,7 +156,7 @@ Return the keys on `obj` or `this.cache`.
 app.forOwn();
 ```
 
-### [.keys](index.js#L242)
+### [.keys](./index.js#L236)
 
 Return the keys on `obj` or `this.cache`.
 
@@ -173,7 +167,7 @@ Return the keys on `obj` or `this.cache`.
 app.keys();
 ```
 
-### [.functions](index.js#L260)
+### [.functions](./index.js#L254)
 
 Return an object of only the properties on `this.cache` or the given `obj` that have function values.
 
@@ -185,7 +179,7 @@ app.functions('foo')
 //=> {set: [function], get: [function], functions: [function]}
 ```
 
-### [.has](index.js#L286)
+### [.has](./index.js#L280)
 
 Return true if a deep property is on the given object or `this.cache`.
 
@@ -196,7 +190,7 @@ Return true if a deep property is on the given object or `this.cache`.
 app.has('a.b.c');
 ```
 
-### [.hasOwn](index.js#L309)
+### [.hasOwn](./index.js#L303)
 
 Return true if `key` is an own, enumerable property of `this.cache` or the given `obj`.
 
@@ -210,7 +204,7 @@ app.hasOwn(key);
 app.hasOwn(obj, key);
 ```
 
-### [.clone](index.js#L328)
+### [.clone](./index.js#L322)
 
 Clone the given `obj` or `cache`.
 
@@ -221,7 +215,7 @@ Clone the given `obj` or `cache`.
 app.clone();
 ```
 
-### [.clear](index.js#L346)
+### [.clear](./index.js#L340)
 
 Remove `key` from the cache, or if no value is specified the entire cache is reset.
 
@@ -233,6 +227,24 @@ Remove `key` from the cache, or if no value is specified the entire cache is res
 app.clear();
 ```
 
+
+## Related
+* [option-cache](https://github.com/jonschlinkert/option-cache): Simple API for managing options in JavaScript applications.
+* [config-cache](https://github.com/jonschlinkert/config-cache): General purpose JavaScript object storage methods.
+* [engine-cache](https://github.com/jonschlinkert/engine-cache): express.js inspired template-engine manager.
+* [loader-cache](https://github.com/jonschlinkert/loader-cache): Register loader functions that dynamically read, parse or otherwise transform file contents when the name of the loader matches a file extension. You can also compose loaders from other loaders.
+* [parser-cache](https://github.com/jonschlinkert/parser-cache): Cache and load parsers, similiar to consolidate.js engines.
+* [helper-cache](https://github.com/jonschlinkert/helper-cache): Easily register and get helper functions to be passed to any template engine or node.js application. Methods for both sync and async helpers.
+
+## Contributing
+Pull requests and stars are always welcome. For bugs and feature requests, [please create an issue](https://github.com/jonschlinkert/cache-base/issues)
+
+## Running tests
+Install dev dependencies.
+
+```bash
+npm i -d && npm test
+```
 
 ## Author
 
@@ -247,4 +259,5 @@ Released under the MIT license
 
 ***
 
-_This file was generated by [verb](https://github.com/assemble/verb) on February 14, 2015._
+_This file was generated by [verb-cli](https://github.com/assemble/verb-cli) on March 11, 2015._
+<!-- deps:mocha -->
