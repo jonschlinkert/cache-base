@@ -1,7 +1,7 @@
 {
   "name": "cache-base",
   "description": "Generic object cache for node.js/javascript projects.",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "homepage": "https://github.com/jonschlinkert/cache-base",
   "author": {
     "name": "Jon Schlinkert",
@@ -29,14 +29,14 @@
     "test": "mocha"
   },
   "dependencies": {
-    "get-value": "^1.0.4",
+    "get-value": "^1.1.1",
     "kind-of": "^1.1.0",
     "lodash": "^3.5.0",
     "option-cache": "^1.2.2"
   },
   "devDependencies": {
     "mocha": "*",
-    "should": "^4.0.4"
+    "should": "^5.1.0"
   },
   "keywords": [
     "config",
