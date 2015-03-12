@@ -1,11 +1,8 @@
 'use strict';
 
 var util = require('util');
-var chalk = require('chalk');
 var typeOf = require('kind-of');
 var Options = require('option-cache');
-var omit = require('object.omit');
-var pick = require('object.pick');
 var get = require('get-value');
 var _ = require('lodash');
 
@@ -75,9 +72,8 @@ Cache.prototype.set = function (key, value) {
  */
 
 Cache.prototype.get = function (key) {
-  if (!key) {
-    return _.cloneDeep(this.cache);
-  }
+  if (!key) return this.clone();
+
   if (key.indexOf('.') !== -1) {
     return get(this.cache, key, true);
   }
@@ -87,8 +83,6 @@ Cache.prototype.get = function (key) {
 /*
  * Return `true` if the element exists. Dot notation
  * may be used for nested properties.
- *
- * **Example**
  *
  * ```js
  * app.exists('author.name');
@@ -110,8 +104,6 @@ Cache.prototype.exists = function(key) {
 /**
  * Extend the `cache` with the given object.
  *
- * **Example**
- *
  * ```js
  * app
  *   .extend({a: 'b'}, {c: 'd'});
@@ -129,19 +121,17 @@ Cache.prototype.extend = function(val) {
   if (typeof val === 'string') {
     var rest = args.slice(1);
     var o = this.get(val) || {};
-    o = _.extend.apply(_, [o].concat(rest));
+    o = extend(o, rest);
     this.cache[val] = o;
-    return this;
+  } else {
+    extend(this.cache, args);
   }
 
-  _.extend.apply(_, [this.cache].concat(args));
   return this;
 };
 
 /**
  * Deep merge an object onto the `cache`.
- *
- * **Example**
  *
  * ```js
  * app.merge({a: {one: 'one'}}, {a: {two: 'two'}});
@@ -160,12 +150,12 @@ Cache.prototype.merge = function(val) {
   if (typeof val === 'string') {
     var rest = args.slice(1);
     var o = this.get(val) || {};
-    o = _.merge.apply(_, [o].concat(rest));
+    o = merge(o, rest);
     this.cache[val] = o;
-    return this;
+  } else {
+    merge(this.cache, args);
   }
 
-  _.merge.apply(_, [this.cache].concat(args));
   return this;
 };
 
@@ -187,7 +177,7 @@ Cache.prototype.merge = function(val) {
  */
 
 Cache.prototype.pick = function(o, keys) {
-  this.extend(pick(o, keys));
+  this.extend(_.pick(o, keys));
 };
 
 /**
@@ -204,7 +194,7 @@ Cache.prototype.pick = function(o, keys) {
  */
 
 Cache.prototype.omit = function(keys) {
-  this.cache = omit(this.cache, keys);
+  this.cache = _.omit(this.cache, keys);
 };
 
 /**
@@ -350,3 +340,20 @@ Cache.prototype.clear = function (key) {
     this.cache = {};
   }
 };
+
+
+/**
+ * Utils
+ */
+
+function extend(o, objects) {
+  return _.extend.apply(_, [o].concat(objects));
+}
+
+function merge(o, objects) {
+  return _.merge.apply(_, [o].concat(objects));
+}
+
+function union () {
+  return [].concat.apply([], arguments);
+}
