@@ -1,6 +1,6 @@
 # cache-base [![NPM version](https://badge.fury.io/js/cache-base.svg)](http://badge.fury.io/js/cache-base)  [![Build Status](https://travis-ci.org/jonschlinkert/cache-base.svg)](https://travis-ci.org/jonschlinkert/cache-base)
 
-> Generic object cache for node.js/javascript projects.
+> Basic object cache with `get`, `set`, `del`, and `has` methods for node.js/javascript projects.
 
 ## Install
 
@@ -63,7 +63,7 @@ console.log(app.data);
 
 ## API
 
-### [namespace](index.js#L23)
+### [namespace](index.js#L18)
 
 Create a `Cache` constructor that, when instantiated, will store values on the given `prop`.
 
@@ -79,7 +79,7 @@ var Cache = require('cache-base').namespace('data');
 var cache = new Cache();
 ```
 
-### [Cache](index.js#L38)
+### [Cache](index.js#L33)
 
 Create a new `Cache`. Internally the `Cache` constructor is created using the `namespace` function, with `cache` defined as the storage object.
 
@@ -93,7 +93,7 @@ Create a new `Cache`. Internally the `Cache` constructor is created using the `n
 var app = new Cache();
 ```
 
-### [.set](index.js#L60)
+### [.set](index.js#L61)
 
 Set property `key` with the given `value`.
 
@@ -111,7 +111,7 @@ app.set('a', 'b');
 app.set({a: 'b'});
 ```
 
-### [.get](index.js#L82)
+### [.get](index.js#L84)
 
 Return the stored value of `key`. If `key` is not defined, the `cache` is returned.
 
@@ -127,7 +127,7 @@ app.get('foo');
 //=> "bar"
 ```
 
-### [.has](index.js#L99)
+### [.has](index.js#L103)
 
 Return true if cache `key` is not undefined or null.
 
@@ -143,7 +143,7 @@ app.has('foo');
 //=> true
 ```
 
-### [.del](index.js#L115)
+### [.del](index.js#L121)
 
 Delete one or more properties from the cache.
 
@@ -159,7 +159,7 @@ app.del('foo');
 app.del(['foo', 'bar']);
 ```
 
-### [.clear](index.js#L132)
+### [.clear](index.js#L139)
 
 Reset the entire cache to an empty object.
 
@@ -169,7 +169,7 @@ Reset the entire cache to an empty object.
 app.clear();
 ```
 
-### [.visit](index.js#L147)
+### [.visit](index.js#L154)
 
 Visit `method`, or map-visit `method`, over each property in `val`.
 
