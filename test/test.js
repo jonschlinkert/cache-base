@@ -116,25 +116,122 @@ describe('cache-base', function() {
 
 describe('events', function() {
   beforeEach(function() {
-    cache = require('..');
-    Cache = cache.namespace('data');
+    Cache = require('..');
     app = new Cache();
   });
 
-  it('should emit a set event', function() {
+  describe('set', function() {
+    it('should emit a "set" event', function(cb) {
+      app.on('set', function(key, val) {
+        cb();
+      });
+      app.set('a', 'b');
+    });
 
+    it('should emit the key with "set" events', function(cb) {
+      app.on('set', function(key, val) {
+        assert.equal(key, 'a');
+        cb();
+      });
+      app.set('a', 'b');
+    });
+
+    it('should emit the value with "set" events', function(cb) {
+      app.on('set', function(key, val) {
+        assert.equal(val, 'b');
+        cb();
+      });
+      app.set('a', 'b');
+    });
   });
-});
 
+  describe('get', function() {
+    it('should emit a get event', function(cb) {
+      app.on('get', function(key) {
+        cb();
+      });
+      app.get('a');
+    });
 
-describe('namespace events', function() {
-  beforeEach(function() {
-    cache = require('..');
-    Cache = cache.namespace('data');
-    app = new Cache();
+    it('should emit the key with "get" events', function(cb) {
+      app.on('get', function(key, val) {
+        assert.equal(key, 'a');
+        cb();
+      });
+      app.set('a', 'b');
+      app.get('a');
+    });
+
+    it('should emit the value with "get" events', function(cb) {
+      app.on('get', function(key, val) {
+        assert.equal(val, 'b');
+        cb();
+      });
+      app.set('a', 'b');
+      app.get('a');
+    });
   });
 
+  describe('has', function() {
+    it('should emit a has event', function(cb) {
+      app.on('has', function(key) {
+        cb();
+      });
+      app.has('a');
+    });
 
+    it('should emit the key with "has" events', function(cb) {
+      app.on('has', function(key, val) {
+        assert.equal(key, 'a');
+        cb();
+      });
+      app.set('a', 'b');
+      app.has('a');
+    });
+
+    it('should emit the value with "has" events', function(cb) {
+      app.on('has', function(key, val) {
+        assert.equal(val, true);
+        cb();
+      });
+      app.set('a', 'b');
+      app.has('a');
+    });
+  });
+
+  describe('del', function() {
+    it('should emit a del event', function(cb) {
+      app.on('del', function(key) {
+        cb();
+      });
+      app.del('a');
+    });
+
+    it('should emit the key with "del" events', function(cb) {
+      app.on('del', function(key) {
+        assert.equal(key, 'a');
+        cb();
+      });
+      app.set('a', 'b');
+      app.del('a');
+    });
+
+    it('should emit each deleted key when an array is passed', function(cb) {
+      var keys = [];
+      app.on('del', function(key) {
+        keys.push(key);
+      });
+
+      app.set('a', 'b');
+      app.set('c', 'd');
+
+      app.del(['a', 'c']);
+      assert.deepEqual(keys, ['a', 'c']);
+      assert(!app.cache.a);
+      assert(!app.cache.c);
+      cb();
+    });
+  });
 });
 
 describe('namespace', function() {
