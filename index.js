@@ -1,11 +1,6 @@
 'use strict';
 
-var isObject = require('isobject');
-var visit = require('collection-visit');
-var get = require('get-value');
-var has = require('has-value');
-var set = require('set-value');
-var unset = require('unset-value');
+var utils = require('./utils');
 
 /**
  * Create a `Cache` constructor that, when instantiated, will
@@ -43,6 +38,12 @@ function namespace(prop) {
   }
 
   /**
+   * Inherit Emitter
+   */
+
+  utils.Emitter(Cache.prototype);
+
+  /**
    * Set property `key` with the given `value`.
    *
    * ```js
@@ -58,10 +59,11 @@ function namespace(prop) {
    */
 
   Cache.prototype.set = function(key, value) {
-    if (isObject(key)) {
+    if (utils.isObject(key)) {
       return this.visit('set', key);
     }
-    set(this[prop], key, value);
+    utils.set(this[prop], key, value);
+    this.emit('set', key, value);
     return this;
   };
 
@@ -80,7 +82,9 @@ function namespace(prop) {
    */
 
   Cache.prototype.get = function(key) {
-    return get(this[prop], key);
+    var val = utils.get(this[prop], key);
+    this.emit('get', key, val);
+    return val;
   };
 
   /**
@@ -97,7 +101,9 @@ function namespace(prop) {
    */
 
   Cache.prototype.has = function(key) {
-    return has(this[prop], key);
+    var has = utils.has(this[prop], key);
+    this.emit('has', key, has);
+    return has;
   };
 
   /**
@@ -116,7 +122,8 @@ function namespace(prop) {
     if (Array.isArray(key)) {
       return this.visit('del', key);
     }
-    unset(this[prop], key);
+    utils.unset(this[prop], key);
+    this.emit('del', key);
     return this;
   };
 
@@ -145,7 +152,7 @@ function namespace(prop) {
    */
 
   Cache.prototype.visit = function(method, val) {
-    visit(this, method, val);
+    utils.visit(this, method, val);
     return this;
   };
 
