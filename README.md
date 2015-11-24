@@ -1,263 +1,222 @@
-# cache-base [![NPM version](https://badge.fury.io/js/cache-base.svg)](http://badge.fury.io/js/cache-base)  [![Build Status](https://travis-ci.org/jonschlinkert/cache-base.svg)](https://travis-ci.org/jonschlinkert/cache-base) 
+# cache-base [![NPM version](https://badge.fury.io/js/cache-base.svg)](http://badge.fury.io/js/cache-base)  [![Build Status](https://travis-ci.org/jonschlinkert/cache-base.svg)](https://travis-ci.org/jonschlinkert/cache-base)
 
 > Generic object cache for node.js/javascript projects.
 
-## Install with [npm](npmjs.org)
+## Install
 
-```bash
-npm i cache-base --save
+Install with [npm](https://www.npmjs.com/)
+
+```sh
+$ npm i cache-base --save
 ```
 
 ## Usage
 
-Create an instance:
-
 ```js
-var App = require('cache-base');
-var app = new App();
+var Cache = require('cache-base');
+
+// instantiate
+var app = new Cache();
+
+// set values
+app.set('a', 'b');
+app.set('c.d', 'e');
+
+// get values
+app.get('a');
+//=> 'b'
+app.get('c');
+//=> {d: 'e'}
+
+console.log(app.cache);
+//=> {a: 'b'}
 ```
 
 **Inherit**
 
 ```js
 var util = require('util');
-var App = require('cache-base');
+var Cache = require('cache-base');
 
-function App() {
-  App.call(this);
+function MyApp() {
+  Cache.call(this);
 }
+util.inherits(MyApp, Cache);
 
-util.inherits(App, App);
-```
-
-**Example usage**
-
-```js
-var app = new App();
-
+var app = new MyApp();
 app.set('a', 'b');
 app.get('a');
 //=> 'b'
+```
 
-app.enable('abc');
-console.log(app.enabled('abc'));
-//=> 'true'
+**Namespace**
+
+Define a custom property for storing values.
+
+```js
+var Cache = require('cache-base').namespace('data');
+var app = new Cache();
+app.set('a', 'b');
+console.log(app.data);
+//=> {a: 'b'}
 ```
 
 ## API
-### [Cache](./index.js#L28)
 
-Create a new instance of `Cache`
+### [namespace](index.js#L23)
 
-* `cache` **{Object}**: Optionally pass an object to initialize with.    
+Create a `Cache` constructor that, when instantiated, will store values on the given `prop`.
+
+**Params**
+
+* `prop` **{String}**: The property name to use for storing values.
+* `returns` **{Function}**: Returns a custom `Cache` constructor
+
+**Example**
+
+```js
+var Cache = require('cache-base').namespace('data');
+var cache = new Cache();
+```
+
+### [Cache](index.js#L38)
+
+Create a new `Cache`. Internally the `Cache` constructor is created using the `namespace` function, with `cache` defined as the storage object.
+
+**Params**
+
+* `cache` **{Object}**: Optionally pass an object to initialize with.
+
+**Example**
 
 ```js
 var app = new Cache();
 ```
 
-### [.set](./index.js#L51)
+### [.set](index.js#L60)
 
-Assign `value` to `key` or return the value of `key`.
+Set property `key` with the given `value`.
 
-* `key` **{String}**    
-* `value` **{*}**    
-* `returns` **{Cache}**: for chaining  
+**Params**
+
+* `key` **{String}**
+* `value` **{any}**
+* `returns` **{Cache}**: Returns the instance for chaining
+
+**Example**
 
 ```js
-app.set(key, value);
-
-// extend
+app.set('a', 'b');
+// or
 app.set({a: 'b'});
 ```
 
-### [.get](./index.js#L74)
+### [.get](index.js#L82)
 
 Return the stored value of `key`. If `key` is not defined, the `cache` is returned.
 
-* `key` **{String}**    
+**Params**
+
+* `key` **{String}**
+
+**Example**
 
 ```js
 app.set('foo', 'bar');
 app.get('foo');
-// => "bar"
+//=> "bar"
 ```
 
-### [.exists](./index.js#L97)
+### [.has](index.js#L99)
 
-Return `true` if the element exists. Dot notation may be used for nested properties.
+Return true if cache `key` is not undefined or null.
 
-* `key` **{String}**    
-* `returns`: {Boolean}  
+**Params**
+
+* `key` **{String}**
+
+**Example**
 
 ```js
-app.exists('author.name');
+app.set('foo', 'bar');
+app.has('foo');
 //=> true
 ```
 
-### [.extend](./index.js#L119)
+### [.del](index.js#L115)
 
-Extend the `cache` with the given object.
+Delete one or more properties from the cache.
 
-* `returns` **{Object}** `Cache`: to enable chaining.  
+**Params**
 
-```js
-app
-  .extend({a: 'b'}, {c: 'd'});
-  .extend('e', {f: 'g'});
-```
+* `keys` **{String|Array}**
 
-### [.merge](./index.js#L148)
-
-Deep merge an object onto the `cache`.
-
-* `returns` **{Object}** `Cache`: to enable chaining.  
+**Example**
 
 ```js
-app.merge({a: {one: 'one'}}, {a: {two: 'two'}});
-console.log(app.get('a'));
-//=> {a: {one: 'one', two: 'two'}}
-```
-
-### [.pick](./index.js#L180)
-
-Extend the cache with only the specified values from the given object.
-
-* `key` **{String|Array}**: The key(s) to pick from the object and extend onto `app.cache`    
-
-```js
-var obj = {a: 'a', b: 'b', c: 'c'};
-app.pick(obj, 'a');
-//=> {a: 'a'}
-
-app.pick(obj, ['a', 'b']);
-//=> {a: 'a', b: 'b'}
-```
-
-### [.omit](./index.js#L197)
-
-Omit a property or array of properties from the cache
-
-* `key` **{String|Array}**: The key(s) to omit from the cache    
-
-```js
-app.omit('foo');
+app.del('foo');
 // or
-app.omit(['foo', 'bar']);
+app.del(['foo', 'bar']);
 ```
 
-### [.forOwn](./index.js#L213)
+### [.clear](index.js#L132)
 
-Return the keys on `obj` or `this.cache`.
+Reset the entire cache to an empty object.
 
-* `obj` **{Object}**: Optionally pass an object.    
-* `returns` **{Array}**: Array of keys.  
-
-```js
-app.forOwn();
-```
-
-### [.keys](./index.js#L233)
-
-Return the keys on `obj` or `this.cache`.
-
-* `obj` **{Object}**: Optionally pass an object.    
-* `returns` **{Array}**: Array of keys.  
-
-```js
-app.keys();
-```
-
-### [.functions](./index.js#L251)
-
-Return an object of only the properties on `this.cache` or the given `obj` that have function values.
-
-* `obj` **{Object}**    
-* `returns`: {Array}  
-
-```js
-app.functions('foo')
-//=> {set: [function], get: [function], functions: [function]}
-```
-
-### [.has](./index.js#L277)
-
-Return true if a deep property is on the given object or `this.cache`.
-
-* `obj` **{Object}**: Optionally pass an object.    
-* `returns` **{String}** `lookup`: Prop string to use for the lookup, e.g. `a.b`  
-
-```js
-app.has('a.b.c');
-```
-
-### [.hasOwn](./index.js#L300)
-
-Return true if `key` is an own, enumerable property of `this.cache` or the given `obj`.
-
-* `key` **{String}**    
-* `obj` **{Object}**: Optionally pass an object to check.    
-* `returns`: {Boolean}  
-
-```js
-app.hasOwn(key);
-// or
-app.hasOwn(obj, key);
-```
-
-### [.clone](./index.js#L319)
-
-Clone the given `obj` or `cache`.
-
-* `obj` **{Object}**: Optionally pass an object to clone.    
-* `returns`: {Boolean}  
-
-```js
-app.clone();
-```
-
-### [.clear](./index.js#L337)
-
-Remove `key` from the cache, or if no value is specified the entire cache is reset.
-
-* `key` **{String}**: The property to remove.    
-
-**Example:**
+**Example**
 
 ```js
 app.clear();
 ```
 
+### [.visit](index.js#L147)
+
+Visit `method`, or map-visit `method`, over each property in `val`.
+
+**Params**
+
+* `method` **{String}**: The name of the method to call.
+* `val` **{Object|Array}**: The object or array to iterate over.
+
+**Example**
+
+```js
+app.visit('set', {a: 'b'});
+```
 
 ## Related
-* [option-cache](https://github.com/jonschlinkert/option-cache): Simple API for managing options in JavaScript applications.
-* [config-cache](https://github.com/jonschlinkert/config-cache): General purpose JavaScript object storage methods.
-* [engine-cache](https://github.com/jonschlinkert/engine-cache): express.js inspired template-engine manager.
-* [loader-cache](https://github.com/jonschlinkert/loader-cache): Register loader functions that dynamically read, parse or otherwise transform file contents when the name of the loader matches a file extension. You can also compose loaders from other loaders.
-* [parser-cache](https://github.com/jonschlinkert/parser-cache): Cache and load parsers, similiar to consolidate.js engines.
-* [helper-cache](https://github.com/jonschlinkert/helper-cache): Easily register and get helper functions to be passed to any template engine or node.js application. Methods for both sync and async helpers.
+
+* [base-methods](https://www.npmjs.com/package/base-methods): Starter for creating a node.js application with a handful of common methods, like `set`, `get`,… [more](https://www.npmjs.com/package/base-methods) | [homepage](https://github.com/jonschlinkert/base-methods)
+* [get-value](https://www.npmjs.com/package/get-value): Use property paths (`  a.b.c`) to get a nested value from an object. | [homepage](https://github.com/jonschlinkert/get-value)
+* [has-value](https://www.npmjs.com/package/has-value): Returns true if a value exists, false if empty. Works with deeply nested values using… [more](https://www.npmjs.com/package/has-value) | [homepage](https://github.com/jonschlinkert/has-value)
+* [option-cache](https://www.npmjs.com/package/option-cache): Simple API for managing options in JavaScript applications. | [homepage](https://github.com/jonschlinkert/option-cache)
+* [set-value](https://www.npmjs.com/package/set-value): Create nested values and any intermediaries using dot notation (`'a.b.c'`) paths. | [homepage](https://github.com/jonschlinkert/set-value)
+* [unset-value](https://www.npmjs.com/package/unset-value): Delete nested properties from an object using dot notation. | [homepage](https://github.com/jonschlinkert/unset-value)
 
 ## Contributing
-Pull requests and stars are always welcome. For bugs and feature requests, [please create an issue](https://github.com/jonschlinkert/cache-base/issues)
+
+Pull requests and stars are always welcome. For bugs and feature requests, [please create an issue](https://github.com/jonschlinkert/cache-base/issues/new).
 
 ## Running tests
-Install dev dependencies.
 
-```bash
-npm i -d && npm test
+Install dev dependencies:
+
+```sh
+$ npm i -d && npm test
 ```
 
 ## Author
 
 **Jon Schlinkert**
- 
+
 + [github/jonschlinkert](https://github.com/jonschlinkert)
-+ [twitter/jonschlinkert](http://twitter.com/jonschlinkert) 
++ [twitter/jonschlinkert](http://twitter.com/jonschlinkert)
 
 ## License
-Copyright (c) 2014-2015 Jon Schlinkert  
-Released under the MIT license
+
+Copyright © 2014-2015 Jon Schlinkert
+Released under the MIT license.
 
 ***
 
-_This file was generated by [verb-cli](https://github.com/assemble/verb-cli) on March 11, 2015._
-<!-- deps:mocha -->
+_This file was generated by [verb-cli](https://github.com/assemble/verb-cli) on November 23, 2015._
