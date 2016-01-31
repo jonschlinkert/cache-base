@@ -82,9 +82,9 @@ function namespace(prop) {
    */
 
   Cache.prototype.get = function(key) {
-    var val = utils.get(this[prop], key);
-    this.emit('get', key, val);
-    return val;
+    var value = utils.get(this[prop], key);
+    this.emit('get', key, value);
+    return value;
   };
 
   /**
