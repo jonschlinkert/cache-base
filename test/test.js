@@ -29,8 +29,8 @@ describe('cache-base', function() {
         one: 1,
         two: 2
       });
-      assert.equal(app.cache.one, 1);
-      assert.equal(app.cache.two, 2);
+      assert.equal(app.one, 1);
+      assert.equal(app.two, 2);
     });
   });
 
@@ -72,12 +72,12 @@ describe('cache-base', function() {
 
     it('should set properties on the `cache` object.', function() {
       app.set('a', 'b');
-      assert.equal(app.cache.a, 'b');
+      assert.equal(app.a, 'b');
     });
 
     it('should allow an object to be set directly.', function() {
       app.set({x: 'y'});
-      assert.equal(app.cache.x, 'y');
+      assert.equal(app.x, 'y');
       assert.equal(app.get('x'), 'y');
     });
 
@@ -107,9 +107,15 @@ describe('cache-base', function() {
       assert(app.get('a') === undefined);
     });
 
-    it('should otherwise return the value', function() {
+    it('should get a value', function() {
       app.set('a', 'b');
       assert.equal(app.get('a'), 'b');
+    });
+
+    it('should get a nested property value', function() {
+      app.set('a.b.c', 'z');
+      assert.equal(app.a.b.c, 'z');
+      assert.deepEqual(app.get('a.b'), {c: 'z'});
     });
   });
 });
@@ -227,8 +233,8 @@ describe('events', function() {
 
       app.del(['a', 'c']);
       assert.deepEqual(keys, ['a', 'c']);
-      assert(!app.cache.a);
-      assert(!app.cache.c);
+      assert(!app.a);
+      assert(!app.c);
       cb();
     });
   });
