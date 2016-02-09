@@ -1,10 +1,10 @@
-# cache-base [![NPM version](https://badge.fury.io/js/cache-base.svg)](http://badge.fury.io/js/cache-base)  [![Build Status](https://travis-ci.org/jonschlinkert/cache-base.svg)](https://travis-ci.org/jonschlinkert/cache-base)
+# cache-base [![NPM version](https://img.shields.io/npm/v/cache-base.svg)](https://www.npmjs.com/package/cache-base) [![Build Status](https://img.shields.io/travis/jonschlinkert/cache-base.svg)](https://travis-ci.org/jonschlinkert/cache-base)
 
 > Basic object cache with `get`, `set`, `del`, and `has` methods for node.js/javascript projects.
 
 ## Install
 
-Install with [npm](https://www.npmjs.com/)
+Install with [npm](https://www.npmjs.com/):
 
 ```sh
 $ npm i cache-base --save
@@ -63,9 +63,9 @@ console.log(app.data);
 
 ## API
 
-### [namespace](index.js#L18)
+### [namespace](index.js#L21)
 
-Create a `Cache` constructor that, when instantiated, will store values on the given `prop`.
+Create a `Cache` constructor that when instantiated will store values on the given `prop`.
 
 **Params**
 
@@ -77,9 +77,12 @@ Create a `Cache` constructor that, when instantiated, will store values on the g
 ```js
 var Cache = require('cache-base').namespace('data');
 var cache = new Cache();
+
+cache.set('foo', 'bar');
+//=> {data: {foo: 'bar'}}
 ```
 
-### [Cache](index.js#L33)
+### [Cache](index.js#L35)
 
 Create a new `Cache`. Internally the `Cache` constructor is created using the `namespace` function, with `cache` defined as the storage object.
 
@@ -93,47 +96,72 @@ Create a new `Cache`. Internally the `Cache` constructor is created using the `n
 var app = new Cache();
 ```
 
-### [.set](index.js#L61)
+### [.set](index.js#L76)
 
-Set property `key` with the given `value`.
+Assign `value` to `key`. Also emits `set` with the key and value.
 
 **Params**
 
 * `key` **{String}**
 * `value` **{any}**
-* `returns` **{Cache}**: Returns the instance for chaining
+* `returns` **{Object}**: Returns the instance for chaining.
+
+**Events**
+
+* `emits`: `set` with `key` and `value` as arguments.
 
 **Example**
 
 ```js
-app.set('a', 'b');
-// or
-app.set({a: 'b'});
+app.on('set', function(key, val) {
+  // do something when `set` is emitted
+});
+
+app.set(key, value);
+
+// also takes an object or array
+app.set({name: 'Halle'});
+app.set([{foo: 'bar'}, {baz: 'quux'}]);
+console.log(app);
+//=> {name: 'Halle', foo: 'bar', baz: 'quux'}
 ```
 
-### [.get](index.js#L84)
+### [.get](index.js#L109)
 
-Return the stored value of `key`. If `key` is not defined, the `cache` is returned.
+Return the value of `key`. Dot notation may be used to get [nested property values](https://github.com/jonschlinkert/get-value).
 
 **Params**
 
-* `key` **{String}**
+* `key` **{String}**: The name of the property to get. Dot-notation may be used.
+* `returns` **{any}**: Returns the value of `key`
+
+**Events**
+
+* `emits`: `get` with `key` and `value` as arguments.
 
 **Example**
 
 ```js
-app.set('foo', 'bar');
-app.get('foo');
-//=> "bar"
+app.set('a.b.c', 'd');
+app.get('a.b');
+//=> {c: 'd'}
+
+app.get(['a', 'b']);
+//=> {c: 'd'}
 ```
 
-### [.has](index.js#L103)
+### [.has](index.js#L136)
 
-Return true if cache `key` is not undefined or null.
+Return true if app has a stored value for `key`, false only if value is `undefined`.
 
 **Params**
 
 * `key` **{String}**
+* `returns` **{Boolean}**
+
+**Events**
+
+* `emits`: `has` with `key` and true or false as arguments.
 
 **Example**
 
@@ -143,23 +171,30 @@ app.has('foo');
 //=> true
 ```
 
-### [.del](index.js#L121)
+### [.del](index.js#L164)
 
-Delete one or more properties from the cache.
+Delete one or more properties from the instance.
 
 **Params**
 
-* `keys` **{String|Array}**
+* `key` **{String|Array}**: Property name or array of property names.
+* `returns` **{Object}**: Returns the instance for chaining.
+
+**Events**
+
+* `emits`: `del` with the `key` as the only argument.
 
 **Example**
 
 ```js
+app.del(); // delete all
+// or
 app.del('foo');
 // or
 app.del(['foo', 'bar']);
 ```
 
-### [.clear](index.js#L139)
+### [.clear](index.js#L183)
 
 Reset the entire cache to an empty object.
 
@@ -169,33 +204,25 @@ Reset the entire cache to an empty object.
 app.clear();
 ```
 
-### [.visit](index.js#L154)
+### [.visit](index.js#L198)
 
-Visit `method`, or map-visit `method`, over each property in `val`.
+Visit `method` over the properties in the given object, or map
+visit over the object-elements in an array.
 
 **Params**
 
-* `method` **{String}**: The name of the method to call.
+* `method` **{String}**: The name of the `base` method to call.
 * `val` **{Object|Array}**: The object or array to iterate over.
+* `returns` **{Object}**: Returns the instance for chaining.
 
-**Example**
+## Related projects
 
-```js
-app.visit('set', {a: 'b'});
-```
-
-## Related
-
-* [base-methods](https://www.npmjs.com/package/base-methods): Starter for creating a node.js application with a handful of common methods, like `set`, `get`,… [more](https://www.npmjs.com/package/base-methods) | [homepage](https://github.com/jonschlinkert/base-methods)
+* [base-methods](https://www.npmjs.com/package/base-methods): base-methods is the foundation for creating modular, unit testable and highly pluggable node.js applications, starting… [more](https://www.npmjs.com/package/base-methods) | [homepage](https://github.com/jonschlinkert/base-methods)
 * [get-value](https://www.npmjs.com/package/get-value): Use property paths (`  a.b.c`) to get a nested value from an object. | [homepage](https://github.com/jonschlinkert/get-value)
 * [has-value](https://www.npmjs.com/package/has-value): Returns true if a value exists, false if empty. Works with deeply nested values using… [more](https://www.npmjs.com/package/has-value) | [homepage](https://github.com/jonschlinkert/has-value)
 * [option-cache](https://www.npmjs.com/package/option-cache): Simple API for managing options in JavaScript applications. | [homepage](https://github.com/jonschlinkert/option-cache)
 * [set-value](https://www.npmjs.com/package/set-value): Create nested values and any intermediaries using dot notation (`'a.b.c'`) paths. | [homepage](https://github.com/jonschlinkert/set-value)
 * [unset-value](https://www.npmjs.com/package/unset-value): Delete nested properties from an object using dot notation. | [homepage](https://github.com/jonschlinkert/unset-value)
-
-## Contributing
-
-Pull requests and stars are always welcome. For bugs and feature requests, [please create an issue](https://github.com/jonschlinkert/cache-base/issues/new).
 
 ## Running tests
 
@@ -205,18 +232,22 @@ Install dev dependencies:
 $ npm i -d && npm test
 ```
 
+## Contributing
+
+Pull requests and stars are always welcome. For bugs and feature requests, [please create an issue](https://github.com/jonschlinkert/cache-base/issues/new).
+
 ## Author
 
 **Jon Schlinkert**
 
-+ [github/jonschlinkert](https://github.com/jonschlinkert)
-+ [twitter/jonschlinkert](http://twitter.com/jonschlinkert)
+* [github/jonschlinkert](https://github.com/jonschlinkert)
+* [twitter/jonschlinkert](http://twitter.com/jonschlinkert)
 
 ## License
 
-Copyright © 2014-2015 Jon Schlinkert
-Released under the MIT license.
+Copyright © 2016 [Jon Schlinkert](https://github.com/jonschlinkert)
+Released under the [MIT license](https://github.com/jonschlinkert/cache-base/blob/master/LICENSE).
 
 ***
 
-_This file was generated by [verb-cli](https://github.com/assemble/verb-cli) on November 23, 2015._
+_This file was generated by [verb](https://github.com/verbose/verb), v0.9.0, on February 09, 2016._
