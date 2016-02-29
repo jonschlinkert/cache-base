@@ -77,7 +77,7 @@ function namespace(prop) {
     if (Array.isArray(key) && arguments.length === 2) {
       key = utils.toPath(key);
     }
-    if (typeof key === 'object') {
+    if (utils.isObject(key)) {
       this.visit('set', key);
     } else {
       utils.set(prop ? this[prop] : this, key, val);
@@ -181,7 +181,9 @@ function namespace(prop) {
    */
 
   Cache.prototype.clear = function() {
-    this[prop] = {};
+    if (prop) {
+      this[prop] = {};
+    }
   };
 
   /**
