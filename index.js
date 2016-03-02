@@ -77,7 +77,7 @@ function namespace(prop) {
     if (Array.isArray(key) && arguments.length === 2) {
       key = utils.toPath(key);
     }
-    if (utils.isObject(key)) {
+    if (utils.isObject(key) || Array.isArray(key)) {
       this.visit('set', key);
     } else {
       utils.set(prop ? this[prop] : this, key, val);
