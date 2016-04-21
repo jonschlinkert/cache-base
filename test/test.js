@@ -64,6 +64,41 @@ describe('cache-base', function() {
     });
   });
 
+  describe('.union()', function() {
+    it('should union a string value', function() {
+      app.union('a', 'b');
+      assert.deepEqual(app.get('a'), ['b']);
+    });
+
+    it('should union multiple string values', function() {
+      app.union('a', 'b');
+      app.union('a', 'c');
+      app.union('a', 'd');
+      assert.deepEqual(app.get('a'), ['b', 'c', 'd']);
+    });
+
+    it('should union multiple arrays', function() {
+      app.union('a', ['b']);
+      app.union('a', ['c']);
+      app.union('a', ['d']);
+      assert.deepEqual(app.get('a'), ['b', 'c', 'd']);
+    });
+
+    it('should union nested string values', function() {
+      app.union('a.b', 'b');
+      app.union('a.b', 'c');
+      app.union('a.b', 'd');
+      assert.deepEqual(app.get('a'), {b: ['b', 'c', 'd']});
+    });
+
+    it('should union and uniquify arrays', function() {
+      app.union('a.b', ['b', 'foo']);
+      app.union('a.b', ['c', 'foo']);
+      app.union('a.b', ['d', 'foo']);
+      assert.deepEqual(app.get('a'), {b: ['b', 'foo', 'c', 'd']});
+    });
+  });
+
   describe('.set()', function() {
     it('should set a value', function() {
       app.set('a', 'b');

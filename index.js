@@ -87,6 +87,29 @@ function namespace(prop) {
   };
 
   /**
+   * Union `array` to `key`. Also emits `set` with
+   * the key and value.
+   *
+   * ```js
+   * app.union('a.b', ['foo']);
+   * app.union('a.b', ['bar']);
+   * console.log(app.get('a'));
+   * //=> {b: ['foo', 'bar']}
+   * ```
+   * @name .union
+   * @param {String} `key`
+   * @param {any} `value`
+   * @return {Object} Returns the instance for chaining.
+   * @api public
+   */
+
+  Cache.prototype.union = function(key, val) {
+    var ctx = prop ? this[prop] : this;
+    utils.union(ctx, key, utils.arrayify(val));
+    return this;
+  };
+
+  /**
    * Return the value of `key`. Dot notation may be used
    * to get [nested property values][get-value].
    *
