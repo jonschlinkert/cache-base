@@ -104,8 +104,12 @@ function namespace(prop) {
    */
 
   Cache.prototype.union = function(key, val) {
+    if (Array.isArray(key) && arguments.length === 2) {
+      key = utils.toPath(key);
+    }
     var ctx = prop ? this[prop] : this;
     utils.union(ctx, key, utils.arrayify(val));
+    this.emit('union', val);
     return this;
   };
 
