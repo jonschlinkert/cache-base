@@ -4,6 +4,10 @@
   "version": "0.8.4",
   "homepage": "https://github.com/jonschlinkert/cache-base",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
+  "contributors": [
+    "<wtgtybhertgeghgtwtg@gmail.com> (https://github.com/wtgtybhertgeghgtwtg)",
+    "Jon Schlinkert <jon.schlinkert@sellside.com> (http://twitter.com/jonschlinkert)"
+  ],
   "repository": "jonschlinkert/cache-base",
   "bugs": {
     "url": "https://github.com/jonschlinkert/cache-base/issues"
@@ -37,6 +41,7 @@
     "mocha": "^2.4.5"
   },
   "keywords": [
+    "base",
     "cache",
     "config",
     "data",

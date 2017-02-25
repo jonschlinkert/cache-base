@@ -1,13 +1,13 @@
-# cache-base [![NPM version](https://img.shields.io/npm/v/cache-base.svg?style=flat)](https://www.npmjs.com/package/cache-base) [![NPM downloads](https://img.shields.io/npm/dm/cache-base.svg?style=flat)](https://npmjs.org/package/cache-base) [![Build Status](https://img.shields.io/travis/jonschlinkert/cache-base.svg?style=flat)](https://travis-ci.org/jonschlinkert/cache-base)
+# cache-base [![NPM version](https://img.shields.io/npm/v/cache-base.svg?style=flat)](https://www.npmjs.com/package/cache-base) [![NPM monthly downloads](https://img.shields.io/npm/dm/cache-base.svg?style=flat)](https://npmjs.org/package/cache-base)  [![NPM total downloads](https://img.shields.io/npm/dt/cache-base.svg?style=flat)](https://npmjs.org/package/cache-base) [![Linux Build Status](https://img.shields.io/travis/jonschlinkert/cache-base.svg?style=flat&label=Travis)](https://travis-ci.org/jonschlinkert/cache-base)
 
-Basic object cache with `get`, `set`, `del`, and `has` methods for node.js/javascript projects.
+> Basic object cache with `get`, `set`, `del`, and `has` methods for node.js/javascript projects.
 
 ## Install
 
 Install with [npm](https://www.npmjs.com/):
 
 ```sh
-$ npm install cache-base --save
+$ npm install --save cache-base
 ```
 
 ## Usage
@@ -147,7 +147,7 @@ console.log(app.get('a'));
 
 ### [.get](index.js#L136)
 
-Return the value of `key`. Dot notation may be used to get [nested property values][get-value].
+Return the value of `key`. Dot notation may be used to get [nested property values](https://github.com/jonschlinkert/get-value).
 
 **Params**
 
@@ -234,51 +234,58 @@ visit over the object-elements in an array.
 * `val` **{Object|Array}**: The object or array to iterate over.
 * `returns` **{Object}**: Returns the instance for chaining.
 
-## Related projects
+## About
 
-You might also be interested in these projects:
+### Related projects
 
-* [base-methods](https://www.npmjs.com/package/base-methods): base-methods is the foundation for creating modular, unit testable and highly pluggable node.js applications, starting… [more](https://www.npmjs.com/package/base-methods) | [homepage](https://github.com/jonschlinkert/base-methods)
-* [get-value](https://www.npmjs.com/package/get-value): Use property paths (`a.b.c`) to get a nested value from an object. | [homepage](https://github.com/jonschlinkert/get-value)
-* [has-value](https://www.npmjs.com/package/has-value): Returns true if a value exists, false if empty. Works with deeply nested values using… [more](https://www.npmjs.com/package/has-value) | [homepage](https://github.com/jonschlinkert/has-value)
-* [option-cache](https://www.npmjs.com/package/option-cache): Simple API for managing options in JavaScript applications. | [homepage](https://github.com/jonschlinkert/option-cache)
-* [set-value](https://www.npmjs.com/package/set-value): Create nested values and any intermediaries using dot notation (`'a.b.c'`) paths. | [homepage](https://github.com/jonschlinkert/set-value)
-* [unset-value](https://www.npmjs.com/package/unset-value): Delete nested properties from an object using dot notation. | [homepage](https://github.com/jonschlinkert/unset-value)
+* [base-methods](https://www.npmjs.com/package/base-methods): base-methods is the foundation for creating modular, unit testable and highly pluggable node.js applications, starting… [more](https://github.com/jonschlinkert/base-methods) | [homepage](https://github.com/jonschlinkert/base-methods "base-methods is the foundation for creating modular, unit testable and highly pluggable node.js applications, starting with a handful of common methods, like `set`, `get`, `del` and `use`.")
+* [get-value](https://www.npmjs.com/package/get-value): Use property paths (`a.b.c`) to get a nested value from an object. | [homepage](https://github.com/jonschlinkert/get-value "Use property paths (`a.b.c`) to get a nested value from an object.")
+* [has-value](https://www.npmjs.com/package/has-value): Returns true if a value exists, false if empty. Works with deeply nested values using… [more](https://github.com/jonschlinkert/has-value) | [homepage](https://github.com/jonschlinkert/has-value "Returns true if a value exists, false if empty. Works with deeply nested values using object paths.")
+* [option-cache](https://www.npmjs.com/package/option-cache): Simple API for managing options in JavaScript applications. | [homepage](https://github.com/jonschlinkert/option-cache "Simple API for managing options in JavaScript applications.")
+* [set-value](https://www.npmjs.com/package/set-value): Create nested values and any intermediaries using dot notation (`'a.b.c'`) paths. | [homepage](https://github.com/jonschlinkert/set-value "Create nested values and any intermediaries using dot notation (`'a.b.c'`) paths.")
+* [unset-value](https://www.npmjs.com/package/unset-value): Delete nested properties from an object using dot notation. | [homepage](https://github.com/jonschlinkert/unset-value "Delete nested properties from an object using dot notation.")
 
-## Contributing
+### Contributing
 
-This document was generated by [verb](https://github.com/verbose/verb), please don't edit directly. Any changes to the readme must be made in [.verb.md](.verb.md). See [Building Docs](#building-docs).
+Pull requests and stars are always welcome. For bugs and feature requests, [please create an issue](../../issues/new).
 
-Pull requests and stars are always welcome. For bugs and feature requests, [please create an issue](https://github.com/jonschlinkert/cache-base/issues/new).
+### Contributors
 
-## Building docs
+| **Commits** | **Contributor** | 
+| --- | --- |
+| 51 | [jonschlinkert](https://github.com/jonschlinkert) |
+| 2 | [wtgtybhertgeghgtwtg](https://github.com/wtgtybhertgeghgtwtg) |
 
-Generate readme and API documentation with [verb](https://github.com/verbose/verb):
+### Building docs
+
+_(This project's readme.md is generated by [verb](https://github.com/verbose/verb-generate-readme), please don't edit the readme directly. Any changes to the readme must be made in the [.verb.md](.verb.md) readme template.)_
+
+To generate the readme, run the following command:
 
 ```sh
-$ npm install -g verb verb-readme-generator && verb
+$ npm install -g verbose/verb#dev verb-generate-readme && verb
 ```
 
-## Running tests
+### Running tests
 
-Install dev dependencies:
+Running and reviewing unit tests is a great way to get familiarized with a library and its API. You can install dependencies and run tests with the following command:
 
 ```sh
-$ npm install -d && npm test
+$ npm install && npm test
 ```
 
-## Author
+### Author
 
 **Jon Schlinkert**
 
 * [github/jonschlinkert](https://github.com/jonschlinkert)
-* [twitter/jonschlinkert](http://twitter.com/jonschlinkert)
+* [twitter/jonschlinkert](https://twitter.com/jonschlinkert)
 
-## License
+### License
 
-Copyright © 2016, [Jon Schlinkert](https://github.com/jonschlinkert).
-Released under the [MIT license](https://github.com/jonschlinkert/cache-base/blob/master/LICENSE).
+Copyright © 2017, [Jon Schlinkert](https://github.com/jonschlinkert).
+Released under the [MIT License](LICENSE).
 
 ***
 
-_This file was generated by [verb](https://github.com/verbose/verb), v0.9.0, on May 30, 2016._
+_This file was generated by [verb-generate-readme](https://github.com/verbose/verb-generate-readme), v0.4.2, on February 25, 2017._
