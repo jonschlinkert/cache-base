@@ -63,7 +63,7 @@ console.log(app.data);
 
 ## API
 
-### [namespace](index.js#L30)
+### [namespace](index.js#L29)
 
 Create a `Cache` constructor that when instantiated will store values on the given `prop`.
 
@@ -82,7 +82,7 @@ cache.set('foo', 'bar');
 //=> {data: {foo: 'bar'}}
 ```
 
-### [Cache](index.js#L44)
+### [Cache](index.js#L43)
 
 Create a new `Cache`. Internally the `Cache` constructor is created using the `namespace` function, with `cache` defined as the storage object.
 
@@ -96,7 +96,7 @@ Create a new `Cache`. Internally the `Cache` constructor is created using the `n
 var app = new Cache();
 ```
 
-### [.set](index.js#L85)
+### [.set](index.js#L84)
 
 Assign `value` to `key`. Also emits `set` with the key and value.
 
@@ -126,7 +126,7 @@ console.log(app);
 //=> {name: 'Halle', foo: 'bar', baz: 'quux'}
 ```
 
-### [.union](index.js#L115)
+### [.union](index.js#L114)
 
 Union `array` to `key`. Also emits `set` with the key and value.
 
@@ -145,7 +145,7 @@ console.log(app.get('a'));
 //=> {b: ['foo', 'bar']}
 ```
 
-### [.get](index.js#L145)
+### [.get](index.js#L144)
 
 Return the value of `key`. Dot notation may be used to get [nested property values](https://github.com/jonschlinkert/get-value).
 
@@ -169,7 +169,7 @@ app.get(['a', 'b']);
 //=> {c: 'd'}
 ```
 
-### [.has](index.js#L172)
+### [.has](index.js#L171)
 
 Return true if app has a stored value for `key`, false only if value is `undefined`.
 
@@ -190,7 +190,7 @@ app.has('foo');
 //=> true
 ```
 
-### [.del](index.js#L200)
+### [.del](index.js#L199)
 
 Delete one or more properties from the instance.
 
@@ -213,7 +213,7 @@ app.del('foo');
 app.del(['foo', 'bar']);
 ```
 
-### [.clear](index.js#L219)
+### [.clear](index.js#L218)
 
 Reset the entire cache to an empty object.
 
@@ -223,7 +223,7 @@ Reset the entire cache to an empty object.
 app.clear();
 ```
 
-### [.visit](index.js#L236)
+### [.visit](index.js#L235)
 
 Visit `method` over the properties in the given object, or map
 visit over the object-elements in an array.
