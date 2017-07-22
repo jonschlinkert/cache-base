@@ -1,6 +1,14 @@
 'use strict';
 
-var utils = require('./utils');
+var isObject = require('isobject');
+var Emitter = require('component-emitter');
+var visit = require('collection-visit');
+var toPath = require('to-object-path');
+var union = require('union-value');
+var del = require('unset-value');
+var get = require('get-value');
+var has = require('has-value');
+var set = require('set-value');
 
 /**
  * Create a `Cache` constructor that when instantiated will
@@ -45,7 +53,7 @@ function namespace(prop) {
    * Inherit Emitter
    */
 
-  utils.Emitter(Cache.prototype);
+  Emitter(Cache.prototype);
 
   /**
    * Assign `value` to `key`. Also emits `set` with
@@ -75,12 +83,12 @@ function namespace(prop) {
 
   Cache.prototype.set = function(key, val) {
     if (Array.isArray(key) && arguments.length === 2) {
-      key = utils.toPath(key);
+      key = toPath(key);
     }
-    if (utils.isObject(key) || Array.isArray(key)) {
+    if (isObject(key) || Array.isArray(key)) {
       this.visit('set', key);
     } else {
-      utils.set(prop ? this[prop] : this, key, val);
+      set(prop ? this[prop] : this, key, val);
       this.emit('set', key, val);
     }
     return this;
@@ -105,10 +113,10 @@ function namespace(prop) {
 
   Cache.prototype.union = function(key, val) {
     if (Array.isArray(key) && arguments.length === 2) {
-      key = utils.toPath(key);
+      key = toPath(key);
     }
     var ctx = prop ? this[prop] : this;
-    utils.union(ctx, key, utils.arrayify(val));
+    union(ctx, key, arrayify(val));
     this.emit('union', val);
     return this;
   };
@@ -134,10 +142,10 @@ function namespace(prop) {
    */
 
   Cache.prototype.get = function(key) {
-    key = utils.toPath(arguments);
+    key = toPath(arguments);
 
     var ctx = prop ? this[prop] : this;
-    var val = utils.get(ctx, key);
+    var val = get(ctx, key);
 
     this.emit('get', key, val);
     return val;
@@ -161,10 +169,10 @@ function namespace(prop) {
    */
 
   Cache.prototype.has = function(key) {
-    key = utils.toPath(arguments);
+    key = toPath(arguments);
 
     var ctx = prop ? this[prop] : this;
-    var val = utils.get(ctx, key);
+    var val = get(ctx, key);
 
     var has = typeof val !== 'undefined';
     this.emit('has', key, has);
@@ -192,7 +200,7 @@ function namespace(prop) {
     if (Array.isArray(key)) {
       this.visit('del', key);
     } else {
-      utils.del(prop ? this[prop] : this, key);
+      del(prop ? this[prop] : this, key);
       this.emit('del', key);
     }
     return this;
@@ -225,11 +233,19 @@ function namespace(prop) {
    */
 
   Cache.prototype.visit = function(method, val) {
-    utils.visit(this, method, val);
+    visit(this, method, val);
     return this;
   };
 
   return Cache;
+}
+
+/**
+ * Cast val to an array
+ */
+
+function arrayify(val) {
+  return val ? (Array.isArray(val) ? val : [val]) : [];
 }
 
 /**
