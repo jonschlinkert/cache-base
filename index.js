@@ -3,256 +3,231 @@
 const isObject = require('isobject');
 const Emitter = require('@sellside/emitter');
 const visit = require('collection-visit');
-const toPath = require('to-object-path');
 const union = require('union-value');
 const del = require('unset-value');
 const get = require('get-value');
-const has = require('has-value');
 const set = require('set-value');
 
 /**
- * Create a `Cache` constructor that when instantiated will
- * store values on the given `prop`.
+ * Create a new `Cache`. Internally the `Cache` constructor is created using
+ * the `namespace` function, with `cache` defined as the storage object.
  *
  * ```js
- * var Cache = require('cache-base').namespace('data');
- * var cache = new Cache();
- *
- * cache.set('foo', 'bar');
- * //=> {data: {foo: 'bar'}}
+ * const cache = new Cache();
  * ```
- * @param {String} `prop` The property name to use for storing values.
- * @return {Function} Returns a custom `Cache` constructor
+ * @param {Object} `cache` Optionally pass an object to initialize with.
+ * @constructor
  * @api public
  */
 
-function namespace(prop) {
+class Cache extends Emitter {
+  constructor(prop, cache) {
+    super();
 
-  /**
-   * Create a new `Cache`. Internally the `Cache` constructor is created using
-   * the `namespace` function, with `cache` defined as the storage object.
-   *
-   * ```js
-   * var app = new Cache();
-   * ```
-   * @param {Object} `cache` Optionally pass an object to initialize with.
-   * @constructor
-   * @api public
-   */
-
-  class Cache extends Emitter {
-    constructor(cache) {
-      super();
-      if (prop) {
-        this[prop] = {};
-      }
-      if (cache) {
-        this.set(cache);
-      }
+    if (typeof prop === 'string') {
+      Reflect.defineProperty(this, 'prop', { value: prop });
+      this[this.prop] = {};
+    } else {
+      cache = prop;
     }
 
-    /**
-     * Assign `value` to `key`. Also emits `set` with
-     * the key and value.
-     *
-     * ```js
-     * app.on('set', function(key, val) {
-     *   // do something when `set` is emitted
-     * });
-     *
-     * app.set(key, value);
-     *
-     * // also takes an object or array
-     * app.set({name: 'Halle'});
-     * app.set([{foo: 'bar'}, {baz: 'quux'}]);
-     * console.log(app);
-     * //=> {name: 'Halle', foo: 'bar', baz: 'quux'}
-     * ```
-     *
-     * @name .set
-     * @emits `set` with `key` and `value` as arguments.
-     * @param {String} `key`
-     * @param {any} `value`
-     * @return {Object} Returns the instance for chaining.
-     * @api public
-     */
-
-    set(key, val) {
-      if (Array.isArray(key) && arguments.length === 2) {
-        key = toPath(key);
-      }
-      if (isObject(key) || Array.isArray(key)) {
-        this.visit('set', key);
-      } else {
-        set(prop ? this[prop] : this, key, val);
-        this.emit('set', key, val);
-      }
-      return this;
-    }
-
-    /**
-     * Union `array` to `key`. Also emits `set` with
-     * the key and value.
-     *
-     * ```js
-     * app.union('a.b', ['foo']);
-     * app.union('a.b', ['bar']);
-     * console.log(app.get('a'));
-     * //=> {b: ['foo', 'bar']}
-     * ```
-     * @name .union
-     * @param {String} `key`
-     * @param {any} `value`
-     * @return {Object} Returns the instance for chaining.
-     * @api public
-     */
-
-    union(key, val) {
-      if (Array.isArray(key) && arguments.length === 2) {
-        key = toPath(key);
-      }
-      var ctx = prop ? this[prop] : this;
-      union(ctx, key, arrayify(val));
-      this.emit('union', val);
-      return this;
-    }
-
-    /**
-     * Return the value of `key`. Dot notation may be used
-     * to get [nested property values][get-value].
-     *
-     * ```js
-     * app.set('a.b.c', 'd');
-     * app.get('a.b');
-     * //=> {c: 'd'}
-     *
-     * app.get(['a', 'b']);
-     * //=> {c: 'd'}
-     * ```
-     *
-     * @name .get
-     * @emits `get` with `key` and `value` as arguments.
-     * @param {String} `key` The name of the property to get. Dot-notation may be used.
-     * @return {any} Returns the value of `key`
-     * @api public
-     */
-
-    get(key) {
-      key = toPath(arguments);
-
-      var ctx = prop ? this[prop] : this;
-      var val = get(ctx, key);
-
-      this.emit('get', key, val);
-      return val;
-    }
-
-    /**
-     * Return true if app has a stored value for `key`,
-     * false only if value is `undefined`.
-     *
-     * ```js
-     * app.set('foo', 'bar');
-     * app.has('foo');
-     * //=> true
-     * ```
-     *
-     * @name .has
-     * @emits `has` with `key` and true or false as arguments.
-     * @param {String} `key`
-     * @return {Boolean}
-     * @api public
-     */
-
-    has(key) {
-      key = toPath(arguments);
-
-      var ctx = prop ? this[prop] : this;
-      var val = get(ctx, key);
-
-      var has = typeof val !== 'undefined';
-      this.emit('has', key, has);
-      return has;
-    }
-
-    /**
-     * Delete one or more properties from the instance.
-     *
-     * ```js
-     * app.del(); // delete all
-     * // or
-     * app.del('foo');
-     * // or
-     * app.del(['foo', 'bar']);
-     * ```
-     * @name .del
-     * @emits `del` with the `key` as the only argument.
-     * @param {String|Array} `key` Property name or array of property names.
-     * @return {Object} Returns the instance for chaining.
-     * @api public
-     */
-
-    del(key) {
-      if (Array.isArray(key)) {
-        this.visit('del', key);
-      } else {
-        del(prop ? this[prop] : this, key);
-        this.emit('del', key);
-      }
-      return this;
-    }
-
-    /**
-     * Reset the entire cache to an empty object.
-     *
-     * ```js
-     * app.clear();
-     * ```
-     * @api public
-     */
-
-    clear() {
-      if (prop) {
-        this[prop] = {};
-      }
-    }
-
-    /**
-     * Visit `method` over the properties in the given object, or map
-     * visit over the object-elements in an array.
-     *
-     * @name .visit
-     * @param {String} `method` The name of the `base` method to call.
-     * @param {Object|Array} `val` The object or array to iterate over.
-     * @return {Object} Returns the instance for chaining.
-     * @api public
-     */
-
-    visit(method, val) {
-      visit(this, method, val);
-      return this;
+    if (cache) {
+      this.set(cache);
     }
   }
 
-  return Cache;
-}
+  /**
+   * Assign `value` to `key`. Also emits `set` with
+   * the key and value.
+   *
+   * ```js
+   * cache.on('set', function(key, val) {
+   *   // do something when `set` is emitted
+   * });
+   *
+   * cache.set(key, value);
+   *
+   * // also takes an object or array
+   * cache.set({name: 'Halle'});
+   * cache.set([{foo: 'bar'}, {baz: 'quux'}]);
+   * console.log(cache);
+   * //=> {name: 'Halle', foo: 'bar', baz: 'quux'}
+   * ```
+   *
+   * @name .set
+   * @emits `set` with `key` and `value` as arguments.
+   * @param {String|Array} `key` The name of the property to set. Dot-notation or an array of object path segments may be used.
+   * @param {any} `value`
+   * @return {Object} Returns the instance for chaining.
+   * @api public
+   */
 
-/**
- * Cast val to an array
- */
+  set(key, val) {
+    if (Array.isArray(key) && arguments.length === 2) {
+      key = key.join('.');
+    }
+    if (isObject(key) || Array.isArray(key)) {
+      this.visit('set', key);
+    } else {
+      set(this.prop ? this[this.prop] : this, key, val);
+      this.emit('set', key, val);
+    }
+    return this;
+  }
 
-function arrayify(val) {
-  return val ? (Array.isArray(val) ? val : [val]) : [];
+  /**
+   * Union `array` to `key`. Also emits `set` with
+   * the key and value.
+   *
+   * ```js
+   * cache.union('a.b', ['foo']);
+   * cache.union('a.b', ['bar']);
+   * console.log(cache.get('a'));
+   * //=> {b: ['foo', 'bar']}
+   * ```
+   * @name .union
+   * @param {String|Array} `key` The name of the property to union. Dot-notation or an array of object path segments may be used.
+   * @param {any} `value`
+   * @return {Object} Returns the instance for chaining.
+   * @api public
+   */
+
+  union(key, val) {
+    if (Array.isArray(key) && arguments.length === 2) {
+      key = key.join('.');
+    }
+    const ctx = this.prop ? this[this.prop] : this;
+    union(ctx, key, val);
+    this.emit('union', val);
+    return this;
+  }
+
+  /**
+   * Return the value of `key`. Dot notation may be used to
+   * get [nested property values][get-value].
+   *
+   * ```js
+   * cache.set('a.b.c', 'd');
+   * cache.get('a.b');
+   * //=> { c: 'd' }
+   *
+   * cache.get(['a', 'b']);
+   * //=> { c: 'd' }
+   * ```
+   *
+   * @name .get
+   * @emits `get` with `key` and `value` as arguments.
+   * @param {String|Array} `key` The name of the property to get. Dot-notation or an array of object path segments may be used.
+   * @return {any} Returns the value of `key`
+   * @api public
+   */
+
+  get(key) {
+    if (Array.isArray(key)) key = key.join('.');
+
+    const ctx = this.prop ? this[this.prop] : this;
+    const val = get(ctx, key);
+
+    this.emit('get', key, val);
+    return val;
+  }
+
+  /**
+   * Return true if cache has a stored value for `key`,
+   * false only if value is `undefined`.
+   *
+   * ```js
+   * cache.set('foo', 'bar');
+   * cache.has('foo');
+   * //=> true
+   * ```
+   *
+   * @name .has
+   * @emits `has` with `key` and true or false as arguments.
+   * @param {String|Array} `key` The name of the property to check. Dot-notation or an array of object path segments may be used.
+   * @return {Boolean}
+   * @api public
+   */
+
+  has(key) {
+    if (Array.isArray(key)) key = key.join('.');
+
+    const ctx = this.prop ? this[this.prop] : this;
+    const val = get(ctx, key);
+
+    const has = typeof val !== 'undefined';
+    this.emit('has', key, has);
+    return has;
+  }
+
+  /**
+   * Delete one or more properties from the instance.
+   *
+   * ```js
+   * cache.del(); // delete all
+   * // or
+   * cache.del('foo');
+   * // or
+   * cache.del(['foo', 'bar']);
+   * ```
+   * @name .del
+   * @emits `del` with the `key` as the only argument.
+   * @param {String|Array} `key` The name of the property to delete. Dot-notation or an array of object path segments may be used.
+   * @return {Object} Returns the instance for chaining.
+   * @api public
+   */
+
+  del(key) {
+    if (Array.isArray(key)) {
+      this.visit('del', key);
+    } else {
+      del(this.prop ? this[this.prop] : this, key);
+      this.emit('del', key);
+    }
+    return this;
+  }
+
+  /**
+   * Visit `method` over the properties in the given object, or map
+   * visit over the object-elements in an array.
+   *
+   * @name .visit
+   * @param {String|Array} `key` The name of the method to visit. Dot-notation or an array of object path segments may be used.
+   * @param {Object|Array} `val` The object or array to iterate over.
+   * @return {Object} Returns the instance for chaining.
+   * @api public
+   */
+
+  visit(key, val) {
+    if (Array.isArray(key)) {
+      key = key.join('.');
+    }
+    visit(this, key, val);
+    return this;
+  }
+
+  /**
+   * Reset the entire cache to an empty object.
+   *
+   * ```js
+   * cache.clear();
+   * ```
+   * @api public
+   */
+
+  clear() {
+    if (this.prop) {
+      this[this.prop] = {};
+    } else {
+      for (const key of Object.keys(this)) {
+        delete this[key];
+      }
+    }
+  }
 }
 
 /**
  * Expose `Cache`
  */
 
-module.exports = namespace();
-
-/**
- * Expose `Cache.namespace`
- */
-
-module.exports.namespace = namespace;
+module.exports = Cache;
