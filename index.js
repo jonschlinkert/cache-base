@@ -124,6 +124,9 @@ class Cache extends Emitter {
 
   get(key) {
     if (Array.isArray(key)) key = key.join('.');
+    if (arguments.length > 1) {
+      key = [].concat.apply([], arguments).join('.');
+    }
 
     const ctx = this.prop ? this[this.prop] : this;
     const val = get(ctx, key);
