@@ -28,7 +28,7 @@ class Cache extends Emitter {
       Reflect.defineProperty(this, 'prop', { value: prop });
       this[this.prop] = {};
     } else {
-      cache = prop;
+      cache = prop || cache;
     }
 
     if (cache) {
