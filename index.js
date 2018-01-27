@@ -3,6 +3,7 @@
 const isObject = require('isobject');
 const Emitter = require('@sellside/emitter');
 const visit = require('collection-visit');
+const hasOwn = require('has-own-deep');
 const union = require('union-value');
 const del = require('unset-value');
 const get = require('get-value');
@@ -63,15 +64,13 @@ class Cache extends Emitter {
    */
 
   set(key, val) {
-    if (Array.isArray(key) && arguments.length === 2) {
-      key = key.join('.');
-    }
     if (isObject(key) || Array.isArray(key)) {
       this.visit('set', key);
-    } else {
-      set(this.prop ? this[this.prop] : this, key, val);
-      this.emit('set', key, val);
+      return this;
     }
+
+    set(this.prop ? this[this.prop] : this, key, val);
+    this.emit('set', key, val);
     return this;
   }
 
@@ -123,43 +122,69 @@ class Cache extends Emitter {
    */
 
   get(key) {
-    if (Array.isArray(key)) key = key.join('.');
-    if (arguments.length > 1) {
-      key = [].concat.apply([], arguments).join('.');
-    }
-
     const ctx = this.prop ? this[this.prop] : this;
     const val = get(ctx, key);
-
     this.emit('get', key, val);
     return val;
   }
 
   /**
-   * Return true if cache has a stored value for `key`,
-   * false only if value is `undefined`.
+   * Return true if `cache[key]` is not `undefined`.
    *
    * ```js
-   * cache.set('foo', 'bar');
-   * cache.has('foo');
-   * //=> true
+   * cache.set('foo', true);
+   * cache.set('baz', null);
+   * cache.set('bar', undefined);
+   *
+   * cache.has('foo'); //=> true
+   * cache.has('bar'); //=> true
+   * cache.has('baz'); //=> false
    * ```
    *
    * @name .has
    * @emits `has` with `key` and true or false as arguments.
-   * @param {String|Array} `key` The name of the property to check. Dot-notation or an array of object path segments may be used.
+   * @param {String|Array} `key` The name of the property to check. Supports [dot-notation](#dot-notation).
    * @return {Boolean}
    * @api public
    */
 
   has(key) {
-    if (Array.isArray(key)) key = key.join('.');
-
     const ctx = this.prop ? this[this.prop] : this;
-    const val = get(ctx, key);
-
-    const has = typeof val !== 'undefined';
+    const has = typeof get(ctx, key) !== 'undefined';
     this.emit('has', key, has);
+    return has;
+  }
+
+  /**
+   * Returns a boolean indicating whether the object has the specified property as an
+   * own (not inherited) property. Similar to [.has()](#has), but returns true even
+   * when the value is `undefined`.
+   *
+   * ```js
+   * cache.set('a.b.c', 'd');
+   * cache.set('x', false);
+   * cache.set('y', null);
+   * cache.set('z', undefined);
+   *
+   * cache.hasOwn('a');      //=> true
+   * cache.hasOwn('b');      //=> true
+   * cache.hasOwn('c');      //=> true
+   * cache.hasOwn('a.b.c');  //=> true
+   * cache.hasOwn('x');      //=> true
+   * cache.hasOwn('y');      //=> true
+   * cache.hasOwn('z');      //=> true
+   * cache.hasOwn('lslsls'); //=> false
+   * ```
+   * @name .hasOwn
+   * @param  {String} `prop`
+   * @return {Boolean} Returns true if object `prop` exists. Supports [dot-notation](#dot-notation).
+   * @api public
+   */
+
+  hasOwn(key) {
+    const ctx = this.prop ? this[this.prop] : this;
+    const has = hasOwn(ctx, key);
+    this.emit('hasOwn', key, has);
     return has;
   }
 
@@ -183,10 +208,11 @@ class Cache extends Emitter {
   del(key) {
     if (Array.isArray(key)) {
       this.visit('del', key);
-    } else {
-      del(this.prop ? this[this.prop] : this, key);
-      this.emit('del', key);
+      return this;
     }
+
+    del(this.prop ? this[this.prop] : this, key);
+    this.emit('del', key);
     return this;
   }
 
@@ -202,9 +228,6 @@ class Cache extends Emitter {
    */
 
   visit(key, val) {
-    if (Array.isArray(key)) {
-      key = key.join('.');
-    }
     visit(this, key, val);
     return this;
   }
@@ -220,12 +243,14 @@ class Cache extends Emitter {
 
   clear() {
     if (this.prop) {
-      this[this.prop] = {};
-    } else {
-      for (const key of Object.keys(this)) {
-        delete this[key];
-      }
+      delete this[this.prop];
+      return this;
     }
+
+    for (const key of Object.keys(this)) {
+      delete this[key];
+    }
+    return this;
   }
 }
 

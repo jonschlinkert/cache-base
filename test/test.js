@@ -243,6 +243,49 @@ describe('events', function() {
     });
   });
 
+  describe('hasOwn', function() {
+    it('should return true if a key exists `.hasOwn()` on the cache', function() {
+      app.set('foo', 'bar');
+      app.set('baz', null);
+      app.set('qux', undefined);
+
+      assert(app.hasOwn('foo'));
+      assert(!app.hasOwn('bar'));
+      assert(app.hasOwn('baz'));
+      assert(app.hasOwn('qux'));
+    });
+
+    it('should work with escaped keys', function() {
+      app.set('foo\\.baz', 'bar');
+      app.set('baz', null);
+      app.set('qux', undefined);
+
+      assert(!app.hasOwn('foo'));
+      assert(!app.hasOwn('bar'));
+      assert(app.hasOwn('foo.baz'));
+      assert(app.hasOwn('baz'));
+      assert(app.hasOwn('qux'));
+    });
+
+    it('should return true if a nested key exists `.hasOwn()` on the cache', function() {
+      app.set('a.b.c.d', { x: 'zzz' });
+      app.set('a.b.c.e', { f: null });
+      app.set('a.b.g.j', { k: undefined });
+
+      assert(app.hasOwn('a.b.c.d'));
+      assert(app.hasOwn('a.b.c.d.x'));
+      assert(app.hasOwn('a.b.c.e.f'));
+      assert(app.hasOwn('a.b.g.j.k'));
+      assert(app.hasOwn('a.b.g.j.k'));
+      assert(app.hasOwn('a.b.c.e.f'));
+
+      assert(!app.hasOwn('a.b.bar'));
+      assert(!app.hasOwn('a.b.c.d.z'));
+      assert(!app.hasOwn('a.b.c.e.bar'));
+      assert(!app.hasOwn('a.b.g.j.foo'));
+    });
+  });
+
   describe('del', function() {
     it('should emit a del event', function(cb) {
       app.on('del', () => cb());
