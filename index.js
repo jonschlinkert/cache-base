@@ -1,6 +1,6 @@
 'use strict';
 
-const isObject = require('isobject');
+const typeOf = require('kind-of');
 const Emitter = require('@sellside/emitter');
 const visit = require('collection-visit');
 const hasOwn = require('has-own-deep');
@@ -39,6 +39,66 @@ class CacheBase extends Emitter {
   }
 
   /**
+   * Assign `value` to `key`. Also emits `set` with the key and value.
+   *
+   * ```js
+   * app.on('set', function(key, val) {
+   *   // do something when `set` is emitted
+   * });
+   *
+   * app.set('admin', true);
+   *
+   * // also takes an object or an array of objects
+   * app.set({ name: 'Brian' });
+   * app.set([{ foo: 'bar' }, { baz: 'quux' }]);
+   * console.log(app);
+   * //=> { name: 'Brian', foo: 'bar', baz: 'quux' }
+   * ```
+   * @name .set
+   * @emits `set` with `key` and `value` as arguments.
+   * @param {String|Array} `key` The name of the property to set. Dot-notation may be used to set nested properties.
+   * @param {any} `value`
+   * @return {Object} Returns the instance for chaining.
+   * @api public
+   */
+
+  set(key, ...rest) {
+    if (isObject(key) || Array.isArray(key)) {
+      return this.visit('set', key, ...rest);
+    }
+
+    set(this[this.prop], key, ...rest);
+    this.emit('set', key, ...rest);
+    return this;
+  }
+
+  /**
+   * Return the value of `key`.
+   *
+   * ```js
+   * app.set('a.b.c', 'd');
+   * app.get('a.b');
+   * //=> { c: 'd' }
+   * ```
+   * @name .get
+   * @emits `get` with `key` and `value` as arguments.
+   * @param {String|Array} `key` The name of the property to get. Dot-notation may be used to set nested properties.
+   * @return {any} Returns the value of `key`
+   * @api public
+   */
+
+  get(key) {
+    let val = get(this[this.prop], key);
+
+    if (typeof val === 'undefined' && this.defaults) {
+      val = get(this.defaults, key);
+    }
+
+    this.emit('get', key, val);
+    return val;
+  }
+
+  /**
    * Create a property on the cache with the given `value` only if it doesn't
    * already exist.
    *
@@ -59,10 +119,8 @@ class CacheBase extends Emitter {
 
   prime(key, ...rest) {
     if (isObject(key) || Array.isArray(key)) {
-      this.visit('prime', key, ...rest);
-      return this;
+      return this.visit('prime', key, ...rest);
     }
-
     if (!this.has(key)) {
       this.set(key, ...rest);
     }
@@ -104,52 +162,20 @@ class CacheBase extends Emitter {
   default(key, ...rest) {
     this.defaults = this.defaults || {};
 
-    if (typeof key === 'string' && rest.length === 0) {
-      return get(this.defaults, key);
+    if (isObject(key) || Array.isArray(key)) {
+      return this.visit('default', key, ...rest);
     }
 
-    if (isObject(key) || Array.isArray(key)) {
-      this.visit('default', key, ...rest);
-      return this;
+    if (!isString(key)) {
+      throw new TypeError('expected "key" to be a string, object or array');
+    }
+
+    if (rest.length === 0) {
+      return get(this.defaults, key);
     }
 
     set(this.defaults, key, ...rest);
     this.emit('default', key, rest);
-    return this;
-  }
-
-  /**
-   * Assign `value` to `key`. Also emits `set` with the key and value.
-   *
-   * ```js
-   * app.on('set', function(key, val) {
-   *   // do something when `set` is emitted
-   * });
-   *
-   * app.set('admin', true);
-   *
-   * // also takes an object or an array of objects
-   * app.set({ name: 'Brian' });
-   * app.set([{ foo: 'bar' }, { baz: 'quux' }]);
-   * console.log(app);
-   * //=> { name: 'Brian', foo: 'bar', baz: 'quux' }
-   * ```
-   * @name .set
-   * @emits `set` with `key` and `value` as arguments.
-   * @param {String|Array} `key` The name of the property to set. Dot-notation may be used to set nested properties.
-   * @param {any} `value`
-   * @return {Object} Returns the instance for chaining.
-   * @api public
-   */
-
-  set(key, val, ...rest) {
-    if (isObject(key) || Array.isArray(key)) {
-      this.visit('set', key, val, ...rest);
-      return this;
-    }
-
-    set(this[this.prop], key, val);
-    this.emit('set', key, val);
     return this;
   }
 
@@ -170,36 +196,10 @@ class CacheBase extends Emitter {
    * @api public
    */
 
-  union(key, val) {
-    union(this[this.prop], key, val);
-    this.emit('union', val);
+  union(key, ...rest) {
+    union(this[this.prop], key, ...rest);
+    this.emit('union', ...rest);
     return this;
-  }
-
-  /**
-   * Return the value of `key`.
-   *
-   * ```js
-   * app.set('a.b.c', 'd');
-   * app.get('a.b');
-   * //=> { c: 'd' }
-   * ```
-   * @name .get
-   * @emits `get` with `key` and `value` as arguments.
-   * @param {String|Array} `key` The name of the property to get. Dot-notation may be used to set nested properties.
-   * @return {any} Returns the value of `key`
-   * @api public
-   */
-
-  get(key) {
-    let val = get(this[this.prop], key);
-
-    if (typeof val === 'undefined' && this.defaults) {
-      val = get(this.defaults, key);
-    }
-
-    this.emit('get', key, val);
-    return val;
   }
 
   /**
@@ -215,7 +215,6 @@ class CacheBase extends Emitter {
    * app.has('baz'); //=> false
    * ```
    * @name .has
-   * @emits `has` with `key` and true or false as arguments.
    * @param {String|Array} `key` The name of the property to check. Dot-notation may be used to set nested properties.
    * @return {Boolean}
    * @api public
@@ -288,13 +287,14 @@ class CacheBase extends Emitter {
 
   /**
    * Reset the entire cache to an empty object. Note that this does not also clear the `defaults`
-   * object, since you can manually do `cache.defaults = {}` if you reset that object as well.
+   * object, since you can manually do `cache.defaults = {}` if you want to reset that object as well.
    *
    * ```js
    * // clear "defaults" whenever the cache is cleared
    * app.on('clear', key => (app.defaults = {}));
    * app.clear();
    * ```
+   * @name .clear
    * @api public
    */
 
@@ -309,19 +309,19 @@ class CacheBase extends Emitter {
    * given object or array.
    *
    * @name .visit
-   * @param {String|Array} `key` The name of the method to visit. Dot-notation may be used to set nested properties.
+   * @param {String|Array} `key` The name of the method to visit.
    * @param {Object|Array} `val` The object or array to iterate over.
    * @return {Object} Returns the instance for chaining.
    * @api public
    */
 
-  visit(key, ...args) {
-    visit(this, key, ...args);
+  visit(key, ...rest) {
+    visit(this, key, ...rest);
     return this;
   }
 
   /**
-   * Returns an array of names of all enumerable properties on the cache.
+   * Gets an array of names of all enumerable properties on the cache.
    *
    * ```js
    * const app = new CacheBase();
@@ -331,6 +331,7 @@ class CacheBase extends Emitter {
    * console.log(app.keys);
    * //=> ['user', 'admin']
    * ```
+   * @name .keys
    * @api public
    */
 
@@ -339,7 +340,7 @@ class CacheBase extends Emitter {
   }
 
   /**
-   * Returns the length of [keys](#keys).
+   * Gets the length of [keys](#keys).
    *
    * ```js
    * const app = new CacheBase();
@@ -349,12 +350,29 @@ class CacheBase extends Emitter {
    * console.log(app.size);
    * //=> 2
    * ```
+   * @name .size
    * @api public
    */
 
   get size() {
     return this.keys.length;
   }
+}
+
+/**
+ * Returns true if `value` is a non-empty string.
+ */
+
+function isString(value) {
+  return typeof value === 'string' && value !== '';
+}
+
+/**
+ * Returns true if `value` is an object
+ */
+
+function isObject(value) {
+  return typeOf(value) === 'object';
 }
 
 /**

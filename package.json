@@ -26,17 +26,17 @@
   "dependencies": {
     "@sellside/emitter": "^1.2.1",
     "collection-visit": "^1.0.0",
-    "get-value": "^2.0.6",
-    "has-own-deep": "^1.0.0",
-    "isobject": "^3.0.1",
-    "set-value": "^2.0.0",
+    "get-value": "^3.0.1",
+    "has-own-deep": "^1.1.0",
+    "kind-of": "^6.0.2",
+    "set-value": "^3.0.0",
     "union-value": "^1.0.0",
     "unset-value": "^1.0.0"
   },
   "devDependencies": {
-    "mocha": "^3.5.3",
     "gulp-format-md": "^1.0.0",
-    "nyc": "^11.4.1"
+    "mocha": "^3.5.3",
+    "nyc": "^11.6.0"
   },
   "keywords": [
     "base",

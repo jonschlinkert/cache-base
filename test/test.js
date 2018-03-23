@@ -76,8 +76,9 @@ describe('cache-base', function() {
     });
 
     it('should take an array of objects', function() {
-      app.default([{ life: 41 }]);
-      assert.equal(app.defaults.life, 41);
+      app.default([{ meaning: 41, life: 42 }]);
+      assert.equal(app.defaults.meaning, 41);
+      assert.equal(app.defaults.life, 42);
     });
 
     it('should return a value from cache.defaults when only the key is passed', function() {
