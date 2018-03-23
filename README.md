@@ -50,7 +50,58 @@ More [usage examples](#usage-examples) below.
 const app = new CacheBase();
 ```
 
-### [.prime](index.js#L60)
+### [.set](index.js#L65)
+
+Assign `value` to `key`. Also emits `set` with the key and value.
+
+**Params**
+
+* `key` **{String|Array}**: The name of the property to set. Dot-notation may be used to set nested properties.
+* `value` **{any}**
+* `returns` **{Object}**: Returns the instance for chaining.
+
+**Events**
+
+* `emits`: `set` with `key` and `value` as arguments.
+
+**Example**
+
+```js
+app.on('set', function(key, val) {
+  // do something when `set` is emitted
+});
+
+app.set('admin', true);
+
+// also takes an object or an array of objects
+app.set({ name: 'Brian' });
+app.set([{ foo: 'bar' }, { baz: 'quux' }]);
+console.log(app);
+//=> { name: 'Brian', foo: 'bar', baz: 'quux' }
+```
+
+### [.get](index.js#L90)
+
+Return the value of `key`.
+
+**Params**
+
+* `key` **{String|Array}**: The name of the property to get. Dot-notation may be used to set nested properties.
+* `returns` **{any}**: Returns the value of `key`
+
+**Events**
+
+* `emits`: `get` with `key` and `value` as arguments.
+
+**Example**
+
+```js
+app.set('a.b.c', 'd');
+app.get('a.b');
+//=> { c: 'd' }
+```
+
+### [.prime](index.js#L120)
 
 Create a property on the cache with the given `value` only if it doesn't already exist.
 
@@ -71,7 +122,7 @@ console.log(app.cache.one); //=> { foo: 'bar' }
 console.log(app.cache.two); //=> { c: 'd' }
 ```
 
-### [.default](index.js#L104)
+### [.default](index.js#L162)
 
 Set a default value to be used when `.get()` is called and the value is not defined on the cache. Returns a value from the defaults when only a key is passed.
 
@@ -105,37 +156,7 @@ console.log(app);
 //   defaults: { foo: 'one', bar: 'two', baz: 'three' } }
 ```
 
-### [.set](index.js#L145)
-
-Assign `value` to `key`. Also emits `set` with the key and value.
-
-**Params**
-
-* `key` **{String|Array}**: The name of the property to set. Dot-notation may be used to set nested properties.
-* `value` **{any}**
-* `returns` **{Object}**: Returns the instance for chaining.
-
-**Events**
-
-* `emits`: `set` with `key` and `value` as arguments.
-
-**Example**
-
-```js
-app.on('set', function(key, val) {
-  // do something when `set` is emitted
-});
-
-app.set('admin', true);
-
-// also takes an object or an array of objects
-app.set({ name: 'Brian' });
-app.set([{ foo: 'bar' }, { baz: 'quux' }]);
-console.log(app);
-//=> { name: 'Brian', foo: 'bar', baz: 'quux' }
-```
-
-### [.union](index.js#L173)
+### [.union](index.js#L199)
 
 Set an array of unique values on cache `key`.
 
@@ -155,28 +176,7 @@ console.log(app.get('a'));
 //=> { b: { c: ['foo', 'bar', 'baz'] } }
 ```
 
-### [.get](index.js#L194)
-
-Return the value of `key`.
-
-**Params**
-
-* `key` **{String|Array}**: The name of the property to get. Dot-notation may be used to set nested properties.
-* `returns` **{any}**: Returns the value of `key`
-
-**Events**
-
-* `emits`: `get` with `key` and `value` as arguments.
-
-**Example**
-
-```js
-app.set('a.b.c', 'd');
-app.get('a.b');
-//=> { c: 'd' }
-```
-
-### [.has](index.js#L224)
+### [.has](index.js#L223)
 
 Return true if the value of property `key` is not `undefined`.
 
@@ -184,10 +184,6 @@ Return true if the value of property `key` is not `undefined`.
 
 * `key` **{String|Array}**: The name of the property to check. Dot-notation may be used to set nested properties.
 * `returns` **{Boolean}**
-
-**Events**
-
-* `emits`: `has` with `key` and true or false as arguments.
 
 **Example**
 
@@ -201,7 +197,7 @@ app.has('bar'); //=> true
 app.has('baz'); //=> false
 ```
 
-### [.hasOwn](index.js#L254)
+### [.hasOwn](index.js#L253)
 
 Returns true if the specified property is an own (not inherited) property. Similar to [.has()](#has), but returns true if the key exists, even if the value is `undefined`.
 
@@ -228,7 +224,7 @@ app.hasOwn('z');      //=> true
 app.hasOwn('lslsls'); //=> false
 ```
 
-### [.del](index.js#L279)
+### [.del](index.js#L278)
 
 Delete one or more properties from the instance.
 
@@ -255,6 +251,10 @@ app.del('foo');
 app.del(['foo', 'bar']);
 ```
 
+### [.clear](index.js#L301)
+
+Reset the entire cache to an empty object. Note that this does not also clear the `defaults` object, since you can manually do `cache.defaults = {}` if you want to reset that object as well.
+
 **Example**
 
 ```js
@@ -270,9 +270,13 @@ given object or array.
 
 **Params**
 
-* `key` **{String|Array}**: The name of the method to visit. Dot-notation may be used to set nested properties.
+* `key` **{String|Array}**: The name of the method to visit.
 * `val` **{Object|Array}**: The object or array to iterate over.
 * `returns` **{Object}**: Returns the instance for chaining.
+
+### [.keys](index.js#L338)
+
+Gets an array of names of all enumerable properties on the cache.
 
 **Example**
 
@@ -284,6 +288,10 @@ app.set('admin', false);
 console.log(app.keys);
 //=> ['user', 'admin']
 ```
+
+### [.size](index.js#L357)
+
+Gets the length of [keys](#keys).
 
 **Example**
 
@@ -431,4 +439,4 @@ Released under the [MIT License](LICENSE).
 
 ***
 
-_This file was generated by [verb-generate-readme](https://github.com/verbose/verb-generate-readme), v0.6.0, on March 03, 2018._
+_This file was generated by [verb-generate-readme](https://github.com/verbose/verb-generate-readme), v0.6.0, on March 23, 2018._
