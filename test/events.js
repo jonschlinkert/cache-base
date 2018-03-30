@@ -80,14 +80,15 @@ describe('events', function() {
       app.del('a');
     });
 
-    it('should emit each deleted key when an array is passed', function(cb) {
+    it('should emit each deleted key when multiple properties are deleted', function(cb) {
       var keys = [];
       app.on('del', key => keys.push(key));
 
       app.set('a', 'b');
       app.set('c', 'd');
 
-      app.del(['a', 'c']);
+      app.del('a');
+      app.del('c');
       assert.deepEqual(keys, ['a', 'c']);
       assert(!app.a);
       assert(!app.c);
