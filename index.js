@@ -63,10 +63,10 @@ class CacheBase extends Emitter {
    */
 
   set(key, ...rest) {
-    if (isObject(key) || Array.isArray(key)) {
+    if (isObject(key) || (rest.length === 0 && Array.isArray(key))) {
       return this.visit('set', key, ...rest);
     }
-
+    if (Array.isArray(key)) key = key.join('.');
     set(this[this.prop], key, ...rest);
     this.emit('set', key, ...rest);
     return this;
@@ -88,6 +88,7 @@ class CacheBase extends Emitter {
    */
 
   get(key) {
+    if (Array.isArray(key)) key = key.join('.');
     let val = get(this[this.prop], key);
 
     if (typeof val === 'undefined' && this.defaults) {
@@ -118,9 +119,10 @@ class CacheBase extends Emitter {
    */
 
   prime(key, ...rest) {
-    if (isObject(key) || Array.isArray(key)) {
+    if (isObject(key) || (rest.length === 0 && Array.isArray(key))) {
       return this.visit('prime', key, ...rest);
     }
+    if (Array.isArray(key)) key = key.join('.');
     if (!this.has(key)) {
       this.set(key, ...rest);
     }
@@ -162,10 +164,11 @@ class CacheBase extends Emitter {
   default(key, ...rest) {
     this.defaults = this.defaults || {};
 
-    if (isObject(key) || Array.isArray(key)) {
+    if (isObject(key) || (rest.length === 0 && Array.isArray(key))) {
       return this.visit('default', key, ...rest);
     }
 
+    if (Array.isArray(key)) key = key.join('.');
     if (!isString(key)) {
       throw new TypeError('expected "key" to be a string, object or array');
     }
@@ -197,6 +200,7 @@ class CacheBase extends Emitter {
    */
 
   union(key, ...rest) {
+    if (Array.isArray(key)) key = key.join('.');
     union(this[this.prop], key, ...rest);
     this.emit('union', ...rest);
     return this;
@@ -221,6 +225,7 @@ class CacheBase extends Emitter {
    */
 
   has(key) {
+    if (Array.isArray(key)) key = key.join('.');
     return typeof get(this[this.prop], key) !== 'undefined';
   }
 
@@ -251,6 +256,7 @@ class CacheBase extends Emitter {
    */
 
   hasOwn(key) {
+    if (Array.isArray(key)) key = key.join('.');
     return hasOwn(this[this.prop], key);
   }
 
@@ -270,16 +276,13 @@ class CacheBase extends Emitter {
    * ```
    * @name .del
    * @emits `del` with the `key` as the only argument.
-   * @param {String|Array} `key` The name of the property to delete. Dot-notation may be used to set nested properties.
+   * @param {string} `key` The name of the property to delete. Dot-notation may be used to delete nested properties. This method does not accept key as an array.
    * @return {Object} Returns the instance for chaining.
    * @api public
    */
 
   del(key) {
     if (!key) return this.clear();
-    if (Array.isArray(key)) {
-      return this.visit('del', key);
-    }
     del(this[this.prop], key);
     this.emit('del', key);
     return this;
