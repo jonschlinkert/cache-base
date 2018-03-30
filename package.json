@@ -1,7 +1,7 @@
 {
   "name": "cache-base",
   "description": "Basic object cache with `get`, `set`, `del`, and `has` methods for node.js/javascript projects.",
-  "version": "2.0.2",
+  "version": "3.0.0",
   "homepage": "https://github.com/jonschlinkert/cache-base",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
   "contributors": [
@@ -18,23 +18,25 @@
   ],
   "main": "index.js",
   "engines": {
-    "node": ">=0.10.0"
+    "node": ">=6"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "nyc --reporter=text --reporter=html mocha"
   },
   "dependencies": {
     "@sellside/emitter": "^1.2.1",
     "collection-visit": "^1.0.0",
-    "get-value": "^2.0.6",
-    "isobject": "^3.0.1",
-    "set-value": "^2.0.0",
+    "get-value": "^3.0.1",
+    "has-own-deep": "^1.1.0",
+    "kind-of": "^6.0.2",
+    "set-value": "^3.0.0",
     "union-value": "^1.0.0",
     "unset-value": "^1.0.0"
   },
   "devDependencies": {
     "gulp-format-md": "^1.0.0",
-    "mocha": "^3.5.3"
+    "mocha": "^3.5.3",
+    "nyc": "^11.6.0"
   },
   "keywords": [
     "base",
@@ -51,7 +53,7 @@
   ],
   "verb": {
     "run": true,
-    "toc": false,
+    "toc": true,
     "layout": "default",
     "tasks": [
       "readme"

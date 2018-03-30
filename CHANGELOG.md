@@ -33,6 +33,13 @@ Changelog entries are classified using the following labels _(from [keep-a-chang
 </details>
 
 
+## [3.0.0] - 2018-01-27
+
+**Changed**
+
+- adds `.prime()` and `.default()` methods
+
+
 ## [2.0.0] - 2017-12-17
 
 **Changed**
@@ -40,13 +47,11 @@ Changelog entries are classified using the following labels _(from [keep-a-chang
 - convert to class
 - refactor to allow namespace to be set on constructor, thus `.namespace` was removed from the main export. Please see the readme for details.
 
+
 ## [1.0.1] - 2017-07-22
 
 - run update, lint, update deps
 
-## [1.0.0] - 2017-02-25
-
-- 
 
 ## [0.8.5] - 2017-02-25
 
@@ -115,12 +120,15 @@ Changelog entries are classified using the following labels _(from [keep-a-chang
 
 ## [0.2.0] - 2014-11-15
 
-- first commit
 - remove namespace stuff
 - update fixtures
 - update verbfile
 - clean up, refactor a number of methods:
 - update docs, run verb
+
+## 0.1.0
+
+- first commit
 
 [2.0.0]: https://github.com/jonschlinkert/cache-base/compare/1.0.1...2.0.0
 [1.0.1]: https://github.com/jonschlinkert/cache-base/compare/1.0.0...1.0.1

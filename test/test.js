@@ -1,21 +1,19 @@
 /*!
  * cache-base <https://github.com/jonschlinkert/cache-base>
  *
- * Copyright (c) 2014-2015, Jon Schlinkert.
+ * Copyright (c) 2014-2018, Jon Schlinkert.
  * Licensed under the MIT License.
  */
 
 'use strict';
 
 require('mocha');
-var assert = require('assert');
-var Cache;
-var cache;
-var app;
+const assert = require('assert');
+const Cache = require('../');
+let app, cache;
 
 describe('cache-base', function() {
   beforeEach(function() {
-    Cache = require('..');
     app = new Cache();
   });
 
@@ -24,47 +22,144 @@ describe('cache-base', function() {
       assert(app instanceof Cache);
     });
 
-    it('should set ', function() {
-      var app = new Cache({
-        one: 1,
-        two: 2
-      });
-      assert.equal(app.one, 1);
-      assert.equal(app.two, 2);
+    it('should set values passed on the ctor', function() {
+      app = new Cache({ one: 1, two: 2 });
+      assert.equal(app.cache.one, 1);
+      assert.equal(app.cache.two, 2);
     });
   });
 
-  describe('get/set:', function() {
-    beforeEach(function() {
-      Cache = require('..');
-      app = new Cache();
+  describe('prime', function() {
+    it('should prime a property on the cache with the given value', function() {
+      app.prime('life', 42);
+      assert.equal(app.cache.life, 42);
     });
 
-    afterEach(function() {
-      app.clear();
+    it('should not prime a property if it already exists', function() {
+      app.set('life', 51);
+      app.prime('life', 42);
+      assert.equal(app.cache.life, 51);
     });
 
-    describe('set() - add:', function() {
-      it('should set a new property with the given value', function() {
-        app.set('one', 1);
-        assert.equal(app.get('one'), 1);
-      });
-    });
-
-    describe('set() - update:', function() {
-      it('should update an existing property with the given value', function() {
-        app.set('one', 2);
-        assert.equal(app.get('one'), 2);
-      });
-
-      it('should get the given property', function() {
-        app.set('a', 'b');
-        assert.equal(app.get('a'), 'b');
-      });
+    it('should prime an object', function() {
+      app.prime({ life: 42 });
+      assert.equal(app.cache.life, 42);
     });
   });
 
-  describe('.union()', function() {
+  describe('default', function() {
+    it('should set a default value on cache.defaults', function() {
+      app.default('life', 42);
+      assert.equal(app.defaults.life, 42);
+    });
+
+    it('should not set a default value on the cache object', function() {
+      app.default('life', 42);
+      assert.equal(app.cache.life, undefined);
+    });
+
+    it('should be overridden when values are set', function() {
+      app.default('life', 42);
+      app.set('life', 51);
+      assert.equal(app.cache.life, 51);
+    });
+
+    it('should not set a default if it already exists', function() {
+      app.set('life', 51);
+      app.default('life', 42);
+      assert.equal(app.cache.life, 51);
+    });
+
+    it('should take an object', function() {
+      app.default({ life: 41 });
+      assert.equal(app.defaults.life, 41);
+    });
+
+    it('should take an array of objects', function() {
+      app.default([{ meaning: 41, life: 42 }]);
+      assert.equal(app.defaults.meaning, 41);
+      assert.equal(app.defaults.life, 42);
+    });
+
+    it('should return a value from cache.defaults when only the key is passed', function() {
+      app.default({ foo: 1, bar: 2 });
+      assert.equal(app.default('foo'), 1);
+    });
+
+    it('should return the default value with `.get()`', function() {
+      app.default({ foo: 1, bar: 2 });
+
+      app.set('foo', 42);
+      assert.equal(app.get('foo'), 42);
+
+      app.del('foo');
+      assert.equal(app.get('foo'), 1);
+      assert.equal(app.get('bar'), 2);
+    });
+  });
+
+  describe('set', function() {
+    it('should set a value', function() {
+      app.set('a', 'b');
+      assert.equal(app.get('a'), 'b');
+    });
+
+    it('should set properties on `app.cache` when defined as key-value pairs', function() {
+      app.set('a', 'b');
+      assert.equal(app.cache.a, 'b');
+    });
+
+    it('should set properties on `app.cache` when defined as as an object', function() {
+      app.set({x: 'y'});
+      assert.equal(app.cache.x, 'y');
+      assert.equal(app.get('x'), 'y');
+    });
+
+    it('should set nested properties on the `app.cache`', function() {
+      app.set('c', {d: 'e'});
+      assert.equal(app.get('c.d'), 'e');
+    });
+
+    it('should be chainable', function() {
+      assert.equal(app.set('a', 'b'), app);
+      app
+        .set('aa', 'bb')
+        .set('bb', 'cc')
+        .set('cc', 'dd');
+      assert.equal(app.get('aa'), 'bb');
+      assert.equal(app.get('bb'), 'cc');
+      assert.equal(app.get('cc'), 'dd');
+    });
+
+    it('should return undefined when not set', function() {
+      assert.equal(app.set('a', undefined), app);
+    });
+  });
+
+  describe('get', function() {
+    it('should return undefined when no set', function() {
+      assert(app.get('a') === undefined);
+    });
+
+    it('should get a value', function() {
+      app.set('a', 'b');
+      assert.equal(app.get('a'), 'b');
+    });
+
+    it('should get a nested property value', function() {
+      app.set('a.b.c', 'z');
+      assert.equal(app.cache.a.b.c, 'z');
+      assert.deepEqual(app.get('a.b'), {c: 'z'});
+    });
+
+    it('should support passing key as an array', function() {
+      app.set('a.b.c', 'z');
+      assert.equal(app.cache.a.b.c, 'z');
+      assert.deepEqual(app.get(['a', 'b']), {c: 'z'});
+    });
+  });
+
+  describe('union', function() {
     it('should union a string value', function() {
       app.union('a', 'b');
       assert.deepEqual(app.get('a'), ['b']);
@@ -106,274 +201,135 @@ describe('cache-base', function() {
     });
   });
 
-  describe('.set()', function() {
-    it('should set a value', function() {
-      app.set('a', 'b');
-      assert.equal(app.get('a'), 'b');
-    });
-
-    it('should set properties on the `cache` object.', function() {
-      app.set('a', 'b');
-      assert.equal(app.a, 'b');
-    });
-
-    it('should allow an object to be set directly.', function() {
-      app.set({x: 'y'});
-      assert.equal(app.x, 'y');
-      assert.equal(app.get('x'), 'y');
-    });
-
-    it('should set nested properties on the `cache` object.', function() {
-      app.set('c', {d: 'e'});
-      assert.equal(app.get('c').d, 'e');
-    });
-
-    it('should be chainable', function() {
-      assert.equal(app.set('a', 'b'), app);
-      app
-        .set('aa', 'bb')
-        .set('bb', 'cc')
-        .set('cc', 'dd');
-      assert.equal(app.get('aa'), 'bb');
-      assert.equal(app.get('bb'), 'cc');
-      assert.equal(app.get('cc'), 'dd');
-    });
-
-    it('should return undefined when not set', function() {
-      assert.equal(app.set('a', undefined), app);
-    });
-  });
-
-  describe('.get()', function() {
-    it('should return undefined when no set', function() {
-      assert(app.get('a') === undefined);
-    });
-
-    it('should get a value', function() {
-      app.set('a', 'b');
-      assert.equal(app.get('a'), 'b');
-    });
-
-    it('should get a nested property value', function() {
-      app.set('a.b.c', 'z');
-      assert.equal(app.a.b.c, 'z');
-      assert.deepEqual(app.get('a.b'), {c: 'z'});
-    });
-  });
-});
-
-describe('events', function() {
-  beforeEach(function() {
-    Cache = require('..');
-    app = new Cache();
-  });
-
-  describe('set', function() {
-    it('should emit a "set" event', function(cb) {
-      app.on('set', function(key, val) {
-        cb();
-      });
-      app.set('a', 'b');
-    });
-
-    it('should emit the key with "set" events', function(cb) {
-      app.on('set', function(key, val) {
-        assert.equal(key, 'a');
-        cb();
-      });
-      app.set('a', 'b');
-    });
-
-    it('should emit the value with "set" events', function(cb) {
-      app.on('set', function(key, val) {
-        assert.equal(val, 'b');
-        cb();
-      });
-      app.set('a', 'b');
-    });
-  });
-
-  describe('get', function() {
-    it('should emit a get event', function(cb) {
-      app.on('get', () => cb());
-      app.get('a');
-    });
-
-    it('should emit the key with "get" events', function(cb) {
-      app.on('get', function(key, val) {
-        assert.equal(key, 'a');
-        cb();
-      });
-      app.set('a', 'b');
-      app.get('a');
-    });
-
-    it('should emit the value with "get" events', function(cb) {
-      app.on('get', function(key, val) {
-        assert.equal(val, 'b');
-        cb();
-      });
-      app.set('a', 'b');
-      app.get('a');
-    });
-  });
-
   describe('has', function() {
-    it('should emit a has event', function(cb) {
-      app.on('has', () => cb());
-      app.has('a');
+    it('should return true if cache has a value for the given key', function() {
+      app.set('foo', 'bar');
+      app.set('baz', null);
+      app.set('qux', undefined);
+
+      assert(app.has('foo'));
+      assert(!app.has('bar'));
+      assert(app.has('baz'));
+      assert(!app.has('qux'));
     });
 
-    it('should emit the key with "has" events', function(cb) {
-      app.on('has', function(key, val) {
-        assert.equal(key, 'a');
-        cb();
-      });
-      app.set('a', 'b');
-      app.has('a');
+    it('should work with escaped keys', function() {
+      app.set('foo\\.baz', 'bar');
+
+      assert(!app.has('foo'));
+      assert(!app.has('bar'));
+      assert(app.has('foo.baz'));
     });
 
-    it('should emit the value with "has" events', function(cb) {
-      app.on('has', function(key, val) {
-        assert.equal(val, true);
-        cb();
-      });
-      app.set('a', 'b');
-      app.has('a');
+    it('should return true if a nested key value on the cache', function() {
+      app.set('a.b.c.d', { x: 'zzz' });
+      app.set('a.b.c.e', { f: null });
+      app.set('a.b.g.j', { k: undefined });
+
+      assert(app.has('a'));
+      assert(app.has('a.b'));
+      assert(app.has('a.b.c'));
+      assert(app.has('a.b.c.d'));
+      assert(app.has('a.b.c.d.x'));
+      assert(app.has('a.b.c.e.f'));
+      assert(!app.has('a.b.g.j.k'));
+
+      assert(!app.has('a.b.bar'));
+      assert(!app.has('a.b.c.d.z'));
+      assert(!app.has('a.b.c.e.bar'));
+      assert(!app.has('a.b.g.j.foo'));
+    });
+  });
+
+  describe('hasOwn', function() {
+    it('should return true if a cache has own key', function() {
+      app.set('foo', 'bar');
+      app.set('baz', null);
+      app.set('qux', undefined);
+
+      assert(app.hasOwn('foo'));
+      assert(!app.hasOwn('bar'));
+      assert(app.hasOwn('baz'));
+      assert(app.hasOwn('qux'));
+    });
+
+    it('should work with escaped keys', function() {
+      app.set('foo\\.baz', 'bar');
+      app.set('baz', null);
+      app.set('qux', undefined);
+
+      assert(!app.hasOwn('foo'));
+      assert(!app.hasOwn('bar'));
+      assert(app.hasOwn('foo.baz'));
+      assert(app.hasOwn('baz'));
+      assert(app.hasOwn('qux'));
+    });
+
+    it('should return true if a nested key exists `.hasOwn()` on the cache', function() {
+      app.set('a.b.c.d', { x: 'zzz' });
+      app.set('a.b.c.e', { f: null });
+      app.set('a.b.g.j', { k: undefined });
+
+      assert(app.hasOwn('a'));
+      assert(app.hasOwn('a.b'));
+      assert(app.hasOwn('a.b.c'));
+      assert(app.hasOwn('a.b.c.d'));
+      assert(app.hasOwn('a.b.c.d.x'));
+      assert(app.hasOwn('a.b.c.e.f'));
+      assert(app.hasOwn('a.b.g.j.k'));
+      assert(app.hasOwn('a.b.g.j.k'));
+      assert(app.hasOwn('a.b.c.e.f'));
+
+      assert(!app.hasOwn('a.b.bar'));
+      assert(!app.hasOwn('a.b.c.d.z'));
+      assert(!app.hasOwn('a.b.c.e.bar'));
+      assert(!app.hasOwn('a.b.g.j.foo'));
     });
   });
 
   describe('del', function() {
-    it('should emit a del event', function(cb) {
-      app.on('del', () => cb());
-      app.del('a');
+    it('should delete a property from the cache', function() {
+      app.set('foo', 42);
+      app.set('bar', 43);
+
+      assert.equal(app.get('foo'), 42);
+      assert.equal(app.get('bar'), 43);
+      app.del('foo');
+
+      assert.equal(app.get('foo'), undefined);
+      assert.equal(app.get('bar'), 43);
     });
 
-    it('should emit the key with "del" events', function(cb) {
-      app.on('del', function(key) {
-        assert.equal(key, 'a');
-        cb();
-      });
-      app.set('a', 'b');
-      app.del('a');
-    });
+    it('should delete all property from the cache when no key is passed', function() {
+      app.set('foo', 42);
+      app.set('bar', 43);
 
-    it('should emit each deleted key when an array is passed', function(cb) {
-      var keys = [];
-      app.on('del', function(key) {
-        keys.push(key);
-      });
+      assert.equal(app.get('foo'), 42);
+      assert.equal(app.get('bar'), 43);
+      app.del();
 
-      app.set('a', 'b');
-      app.set('c', 'd');
-
-      app.del(['a', 'c']);
-      assert.deepEqual(keys, ['a', 'c']);
-      assert(!app.a);
-      assert(!app.c);
-      cb();
-    });
-  });
-});
-
-describe('namespace', function() {
-  beforeEach(function() {
-    Cache = require('..');
-    app = new Cache('data');
-  });
-
-  describe('constructor:', function() {
-    it('should create an instance of Cache', function() {
-      assert(app instanceof Cache);
-    });
-
-    it('should set ', function() {
-      var app = new Cache('data', {
-        one: 1,
-        two: 2
-      });
-      assert.equal(app.data.one, 1);
-      assert.equal(app.data.two, 2);
+      assert.equal(app.get('foo'), undefined);
+      assert.equal(app.get('bar'), undefined);
     });
   });
 
-  describe('get/set:', function() {
-    describe('set() - add:', function() {
-      it('should set a new property with the given value', function() {
-        app.set('one', 1);
-        assert.equal(app.get('one'), 1);
-        assert.equal(app.data.one, 1);
-      });
-    });
+  describe('keys', function() {
+    it('should return all enumerable property names from the cache', function() {
+      app.set('foo', 42);
+      app.set('bar', null);
+      app.set('baz', undefined);
 
-    describe('set() - update:', function() {
-      it('should update an existing property with the given value', function() {
-        app.set('one', 2);
-        assert.equal(app.get('one'), 2);
-        assert.equal(app.data.one, 2);
-      });
-
-      it('should get the given property', function() {
-        app.set('a', 'b');
-        assert.equal(app.get('a'), 'b');
-        assert.equal(app.data.a, 'b');
-      });
+      assert.deepEqual(app.keys, ['foo', 'bar', 'baz']);
     });
   });
 
-  describe('.set()', function() {
-    it('should set a value', function() {
-      app.set('a', 'b');
-      assert.equal(app.get('a'), 'b');
-      assert.equal(app.data.a, 'b');
-    });
+  describe('size', function() {
+    it('should return the length of cache.keys', function() {
+      app.set('foo', 'bar');
+      app.set('baz', null);
+      app.set('qux', undefined);
 
-    it('should set properties on the `data` object.', function() {
-      app.set('a', 'b');
-      assert.equal(app.data.a, 'b');
-    });
-
-    it('should allow an object to be set directly.', function() {
-      app.set({x: 'y'});
-      assert.equal(app.data.x, 'y');
-      assert.equal(app.get('x'), 'y');
-    });
-
-    it('should set nested properties on the `data` object.', function() {
-      app.set('c', {d: 'e'});
-      assert.equal(app.get('c').d, 'e');
-    });
-
-    it('should be chainable', function() {
-      assert.equal(app.set('a', 'b'), app);
-      app
-        .set('aa', 'bb')
-        .set('bb', 'cc')
-        .set('cc', 'dd');
-
-      assert.equal(app.get('aa'), 'bb');
-      assert.equal(app.get('bb'), 'cc');
-      assert.equal(app.get('cc'), 'dd');
-
-      assert.equal(app.data.aa, 'bb');
-      assert.equal(app.data.bb, 'cc');
-      assert.equal(app.data.cc, 'dd');
-    });
-
-    it('should return undefined when not set', function() {
-      assert.equal(app.set('sfsfsdfs', undefined), app);
-    });
-  });
-
-  describe('.get()', function() {
-    it('should return undefined when no set', function() {
-      assert(app.get('a') === undefined);
-    });
-
-    it('should otherwise return the value', function() {
-      app.set('a', 'b');
-      assert.equal(app.get('a'), 'b');
-      assert.equal(app.data.a, 'b');
+      assert.equal(app.size, 3);
     });
   });
 });
