@@ -74,7 +74,7 @@ class CacheBase extends Emitter {
    */
 
   set(key, ...rest) {
-    if (key.split(".").some((k) => isPrototypePolluted(k))) return this;
+    if (String(key).split(".").some((k) => isPrototypePolluted(k))) return this;
     if (isObject(key) || (rest.length === 0 && Array.isArray(key))) {
       return this.visit('set', key, ...rest);
     }
