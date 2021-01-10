@@ -9,6 +9,17 @@ const del = require('unset-value');
 const get = require('get-value');
 const set = require('set-value');
 
+
+/**
+ * Blacklist certain keys to prevent
+ * Prototype Pollution.
+ * @param {string} key 
+ */
+function isPrototypePolluted(key) {
+  return ['__proto__', 'constructor', 'prototype'].includes(key);
+}
+
+
 /**
  * Create an instance of `CacheBase`.
  *
@@ -63,6 +74,7 @@ class CacheBase extends Emitter {
    */
 
   set(key, ...rest) {
+    if (key.split(".").some((k) => isPrototypePolluted(k))) return this;
     if (isObject(key) || (rest.length === 0 && Array.isArray(key))) {
       return this.visit('set', key, ...rest);
     }
