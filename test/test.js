@@ -332,4 +332,13 @@ describe('cache-base', function() {
       assert.equal(app.size, 3);
     });
   });
+
+  describe('prototypepollution', function() {
+    it('prevent prototype pollution', function() {
+      app.set('__proto__.polluted', 'Yes, its polluted');
+
+      assert(!app.hasOwn('cache.polluted'));
+      assert.equal(app.cache.polluted, undefined);
+    });
+  });
 });
