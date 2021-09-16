@@ -1,7 +1,7 @@
 {
   "name": "cache-base",
   "description": "Basic object cache with `get`, `set`, `del`, and `has` methods for node.js/javascript projects.",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "homepage": "https://github.com/jonschlinkert/cache-base",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
   "contributors": [
@@ -29,7 +29,7 @@
     "get-value": "^3.0.1",
     "has-own-deep": "^1.1.0",
     "kind-of": "^6.0.2",
-    "set-value": "^3.0.0",
+    "set-value": "^4.0.1",
     "union-value": "^1.0.0",
     "unset-value": "^1.0.0"
   },
