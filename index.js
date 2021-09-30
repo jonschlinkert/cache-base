@@ -1,6 +1,5 @@
 'use strict';
 
-const typeOf = require('kind-of');
 const Emitter = require('@sellside/emitter');
 const visit = require('collection-visit');
 const hasOwn = require('has-own-deep');
@@ -375,7 +374,7 @@ function isString(value) {
  */
 
 function isObject(value) {
-  return typeOf(value) === 'object';
+  return value && typeof value === 'object';
 }
 
 /**

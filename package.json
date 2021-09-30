@@ -28,7 +28,6 @@
     "collection-visit": "^1.0.0",
     "get-value": "^3.0.1",
     "has-own-deep": "^1.1.0",
-    "kind-of": "^6.0.2",
     "set-value": "^3.0.0",
     "union-value": "^1.0.0",
     "unset-value": "^1.0.0"
