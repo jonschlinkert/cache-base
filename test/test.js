@@ -250,7 +250,7 @@ describe('cache-base', function() {
       assert(app.hasOwn('foo'));
       assert(!app.hasOwn('bar'));
       assert(app.hasOwn('baz'));
-      assert(app.hasOwn('qux'));
+      assert(!app.hasOwn('qux'));
     });
 
     it('should work with escaped keys', function() {
@@ -262,7 +262,6 @@ describe('cache-base', function() {
       assert(!app.hasOwn('bar'));
       assert(app.hasOwn('foo.baz'));
       assert(app.hasOwn('baz'));
-      assert(app.hasOwn('qux'));
     });
 
     it('should return true if a nested key exists `.hasOwn()` on the cache', function() {
@@ -319,7 +318,7 @@ describe('cache-base', function() {
       app.set('bar', null);
       app.set('baz', undefined);
 
-      assert.deepEqual(app.keys, ['foo', 'bar', 'baz']);
+      assert.deepEqual(app.keys, ['foo', 'bar']);
     });
   });
 
@@ -329,7 +328,7 @@ describe('cache-base', function() {
       app.set('baz', null);
       app.set('qux', undefined);
 
-      assert.equal(app.size, 3);
+      assert.equal(app.size, 2);
     });
   });
 });
