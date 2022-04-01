@@ -31,7 +31,7 @@
     "kind-of": "^6.0.2",
     "set-value": "^4.1.0",
     "union-value": "^1.0.0",
-    "unset-value": "^1.0.0"
+    "unset-value": "^2.0.1"
   },
   "devDependencies": {
     "gulp-format-md": "^1.0.0",
